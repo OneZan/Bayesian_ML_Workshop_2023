@@ -1,0 +1,122 @@
+\documentclass[aps,onecolumn,12pt,notitlepage]{revtex4-1}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{anysize}
+\usepackage[spanish]{babel}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\newcommand{\degre}{\ensuremath{^\circ}}
+\usetikzlibrary[patterns]
+\usepackage{enumerate}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{appendix}
+\usepackage{graphicx}
+
+\begin{document}
+
+\renewcommand{\andname}{y}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+
+\title{Introducción a la Probabilidad Bayesiana.  Parte 1, El Desiderata}
+\author{Martín Onetto} 
+%\date{\today}
+\maketitle
+\
+
+\section{La probabilidad como extensión de la lógica}
+
+El enfoque bayesiano de la probabilidad está construido sobre \textit{silogísmos} y \textit{proposiciones} lógicas. En resumidas cuentas, una proposición lógica cosnsite en una sentencia que tiene un valor de verdad definido, es cierta o no lo es. Luego, un silogismo es una estructura que describe una regla entre proposiciones lógicas. Entre los silogismos tenemos aquellos que se conocen como \textit{Silogismos fuertes}, entre ellos están el \textit{modus ponems} $A\rightarrow B$ que se lee como ``A implica B'' y el \textit{modus tollens} $\bar{B} \rightarrow \bar{A}$, que se lee ``la negación de B implica la negación de A''.
+Cada uno de estos silogismos nos da una regla, en el caso de \textit{modus ponems} si alguien viene y nos dice que la proposición A es cierta, inmediatamente concluímos que B es cierto. Luego, en el caso de \textit{modus tollens} tenemos que si la propoción B \textbf{no} es cierta conlcuímos que A no es cierta. 
+
+\subsubsection{Ejemplo de un dado}
+Si tiramos un dado  de 6 caras con su resultado podemos hacer uso de este esquema lógico. Definiendo las proposiciones:
+\begin{itemize}
+\item A : El resultado de tirar el dado es 2.
+\item B	: El resultado de tirar el dado es un número par
+\end{itemize}
+En donde se cumple $A\rightarrow B$ y a su vez $\bar{B} \rightarrow \bar{A}$. Si es cierto que el resultado del dado es 2 (A), también lo es que el resultado es un número par. A su vez, si sabemos que no es cierto que el resultado es un número par, entonces sabemos que no es cierto que el resultado haya sido el número 2.
+
+\subsubsection{Ejemplo de la lluvia}
+Por alguna razón este es uno de los ejemplos que más se da para explicar silogismos.
+\begin{itemize}
+\item A : Hoy llueve.
+\item B	: Vemos el piso mojado.
+\end{itemize}
+De la misma manera que en la moneda vemos que, si es cierto que hoy llueve sucede también que también lo es que el piso está mojado. En caso contrario que no sea cierto que el piso está mojado, ... etc.
+
+\textbf{Un comentario sobre causalidad}
+\newline
+Este ejemplo tiene una peculiaridad en comparación al ejemplo del dado. Aquí hay un orden causal, es el agua de la lluvia moja el piso. Sin embargo, en el ejemplo del dado no hay una causalidad física simplemente el hecho de que el 2 pertenezca al conjunto de los número pares hace que se cumpla el silogismo lógico. Es importante destacar entonces que no es necesario establecer una causalidad, causa y efecto, a la hora de hablar de una implicancia lógica sino simplemente basta con hacer relaciones entre proposiciones y estados de verdad.
+
+\section{Desiderata}
+Los silogismos que mencionamos no nos dicen nada sobre qué sucede en el caso donde tenemos la afirmación del consecuente, ie. dado $A rightarrow B$ nos presentan que $B$ es verdadero. Según lo que vimos no sería correcto decir que la premisa, ie $A$, toma algún lugar de verdad en particular dada esa información. En este contexto aparecen los \textit{Silogismos debiles}, los cuales dicen que dado $A rightarrow B$ y tenemos como $B$ cierto, entonces $A$ es más \textit{plausible}.       \textbf{Ésta es la base del enfoque bayesiano}.
+
+
+Bajo esta idea E. T. Jaynes Y E.Cox desarrollaron los axiomas o, también desiderata de la estadística Bayesiana:
+\begin{itemize}
+\item 1)  El grado de plausibilidad de una proposición lógica debe medirse en números reales.
+\item 2) La medida de plausibilidad debe estar en concordancia con la razón, es decir que si uno incorpora información que está en acuerdo a la proposición en cuestión, la plausibilidad de ésta debe crecer monótonamente. Debe poder construirse el límite de lo plausible hacia la lógica deductiva de lo absolutamente certero e imposible.
+\item 3) Consistencia:
+	\begin{itemize}
+	\item a) Estructural: Si tenemos varios caminos para derivar una conclusión, el resultado debe ser el mismo para cada uno de ellos.
+	\item b) Imparcial: Debe considerarse toda la información relevante a la hora de derivar un resultado. No podemos ser selectivos en la información que se incorpora dado que se llegarán a conclusiones erróneas o contradicciones.
+	\item c) "Consistencia de Jaynes": Si dos proposiciones tiene el mismo estado de verdad es decir $AB|C = B|C$, entonces la plausibilidad de $AB|C$ debe ser la misma que la de $B|C$.
+	\end{itemize}
+\end{itemize}
+en el item c) del apartado de consistencia nos leemos a $AB|C$ como: ``los valores de $A$ y $B$ son ciertos simultáneamente dado que, $|$, sabemos que la proposición $C$ lo es''. En ese caso el hecho de que se de la igualdad $AB|C = B|C$  implica que lógicamente son lo mismo, queriendo decir que dar el valor de $A|C$ no me aporta información sobre el valor de $B|C$. Esto es lo mismo que tener en cuenta la regla $C \rightarrow A$ dado que el valor de $A$ ya está dado, siempre y cuando $B$ no contradiga a $C$.
+
+\subsection{La probabilidad y sus reglas}
+Vamos a relacionar plausibilidad con la probabilidad simplemente diciendo que la probabilidad es una función monótona de la plausibilidad acotada entre $0$ y $1$, en donde dada una proposición $A$ identificamos como:
+\begin{align}
+P(A) &= 0 \quad\quad\quad \text{A es imposible}\\ 
+P(A) &= 1 \quad\quad\quad \text{A es siempre cierto} 
+\end{align}
+
+Utilizando esta definición de probabilidad, operaciones  de la lógica proposicional con el álgebra de Boole y el Desiderata se obtienen las reglas conocidas como:
+\begin{align}
+&\text{Regla de la suma:}\quad P(A + B|C) = P(A|C) + P(B|C) - P(AB|C)\\
+&\text{Regla del producto:}\quad P(A|BC) = \frac{P(AB|C)}{P(B|C)} = \frac{P(B|AC)P(A|C)}{P(B|C)} 
+\end{align}
+Aquí entendemos a la "suma" de proposiciones, como una disyunción, es decir para $A+B$ tenemos que la sentencia de que $A$ sea cierto \textbf{o} $B$ sea cierto. Por otro lado cuando tenemos dos proposiciones juntas, es decir el producto lógico de ellas, tenemos una conjunción, para $AB$ tenemos la sentencia de que $A$ y $B$ son ciertas \textbf{simultaneamente}. 
+
+Algo notable de la regla del producto es la relación de proporcionalidad entre $P(B|AC)$ y $P(A|BC)$. Tanto por su simpleza como por su gran poder de inferencia. Esta ecuación será la protagonista en todo lo que es ajuste en estimación de parámetros en modelos.
+
+\subsection{Un ejemplo constructivo: Maíz en América}
+
+Definamos las siguientes proposiciones:
+\begin{itemize}
+\item{A} El maíz se cosechaba en América durante el año 1000 DC
+\item{B}: Había semillas de maíz en América durante el año 1000 DC
+\item{I}: Se necesita de la semilla del maíz para poder plantarlo y luego cosecharlo.
+\end{itemize}
+
+Veamos la probabilidad de $B$ dado $A$ e $I$, usando la regla del producto tenemos:
+\begin{equation}
+P(B|AI) = \frac{P(AB|I)}{P(A|I)} 
+\end{equation}
+Usando la información de $I$ tenemos que el hecho de que para que sea cierto que se coseche maiz, es decir $A$ sea cierto, debe ser cierto simultaneamnte que haya semillas, es decir $AB$. Por lo tanto, por la consistencia de Jaynes tenemos que si $AB|C  = A|C$  entonces $P(AB|C) =P(A|C)$. Si hacemos ese reemplazo en la regla del producto obtenemos:
+\begin{equation}
+P(B|AI) = \frac{P(A|I)}{P(A|I)} = 1.
+\end{equation}
+Es decir una certeza absoluta. Esta es una consecuencia del Desiderata 2), donde tenemos el límite de la lógica deductiva por la información que tenemos del problema.
+
+Ahora calculemos la cantidad recíproca, nuevamente por la regla del producto tenemos:
+\begin{equation}
+P(A|BI) = \frac{P(B|AI)P(A|I)}{P(B|I)} 
+\end{equation}
+Si reemplazamos el resultado del cálculo anterior $P(B|AI) = 1$ tenemos que
+\begin{equation}
+P(A|BI) = \frac{P(A|I)}{P(B|I)}
+\end{equation}
+Luego, también sabemos que $P(B|I)}$ es un número que está entre $0$ y $1$ en donde tomará los valores extremos en caso de imposibilidad o certeza absoluta, respectivamente. Entonces podemos concluir
+\begin{equation}
+P(A|BI) \geq P(A|I)
+\end{equation}
+Lo cual está de acuerdo también con el Desdiderata 2) donde vemos que cuando incorporamos información relevante la plausibilidad, y por ende la probabilidad, aumentan.
+
+Hasta la proxima.
+\end{document}

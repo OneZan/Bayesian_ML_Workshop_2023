@@ -1,0 +1,85 @@
+\documentclass[aps,onecolumn,12pt,notitlepage]{revtex4-1}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{anysize}
+\usepackage[spanish]{babel}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\newcommand{\degre}{\ensuremath{^\circ}}
+\usetikzlibrary[patterns]
+\usepackage{enumerate}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{appendix}
+\usepackage{graphicx}
+
+\begin{document}
+
+\renewcommand{\andname}{y}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+
+\title{Introducción a la Probabilidad Bayesiana.  Parte 2, Operaciones Útiles}
+\author{Martín Onetto} 
+%\date{\today}
+\maketitle
+\
+
+\textbf{Operaciones cotidianas en cálculo de probabilidades}
+
+Aquí vamos a desarrollar 3 resultados que nos serán útiles a la hora de hacer inferencia en los siguientes módulos.
+\begin{itemize}
+\item{I}: Si $A \in {a_{i}} i=1,...,N \rightarrow \sum_{i} P(A = a_{i}) \equiv  \sum_{i} P(A_{i})= 1$
+\item{II}: Si $A|BC = A|C \rightarrow P(AB|C)=P(A|C)P(B|C)$
+\item{III}: Si $A \in {a_{i}} i=1,...,N \rightarrow P(B|C) = \sum_{i}P(A_{i}B|C)$
+\end{itemize}
+
+\textbf{I : Normalización}
+
+Si tenemos que la proposición $A$ puede ser igual a un valor dentro de un conjunto, es decir $A \in {a_{i}} i=1,...,N$ entonces tenemos:
+\begin{equation}
+P(\sum A=a_{i}|I) = 1
+\end{equation}
+recordando que la suma en este caso corresponde a la disyunción, lo que estamos calculando es la probabilidad de que $A$ tome alguno de los valores $a_{i}$ lo cual es siempre cierto, \textbf{siempre será igual a algún $a_{i}$}. Luego usando la regla de la suma tenemos:
+\begin{equation}
+\begin{aligned}
+P(\sum A=a_{i}|I) = \sum_{i}P(A = a_{i}) &- \sum_{i\neq j}P(A=a_{i},A=a_{j}|I)\,+\\ &+\sum_{i\neq j\neq k}P(A=a_{i},A=a_{j},A=a_{k}|I) -...
+\end{aligned}
+\end{equation}
+Como $A$ no puede tomar dos valores simultáneamente, sólo sobrevive la suma $\sum_{i}P(A = a_{i})$. Obteniendo así:
+\begin{equation}
+P(\sum A=a_{i}|I) = \sum_{i}P(A = a_{i}) = 1
+\end{equation}
+\newpage
+\textbf{II: Independencia lógica}
+
+Dada la equivalencia entre proposiciones $A|BC = A|C$  Escribamos la regla del producto para $A|BC$ como:
+\begin{equation}
+P(A|BC) = \frac{P(AB|C)}{P(B|C)}
+\end{equation}
+Si reemplazamos $A|BC = A|C$ en la ecuación obtenemos:
+\begin{equation}
+P(A|C) = \frac{P(AB|C)}{P(B|C)} \rightarrow P(AB|C) = P(A|C)P(B|C)
+\end{equation}
+
+La equivalencia en proposiciones nos dice que tenemos el mismo nivel de verdad sobre la proposición $A$ sea que tengamos la información $C$ o la información $BC$. Es decir, que el estado de verdad de $B$ no cambia el estado de verdad de $A$, manteniendo $C$. En este caso vemos que hay una independencia \textit{lógica} entre las proposiciones la cual culmina en que el nivel de certeza que tengamos sobre que sean ciertas simultáneamente resulte simplemente en el producto de las probabilidades de cada una.
+
+
+\textbf{III: Marginalización}
+
+Si tenemos una proposición $A$ que toma valores en un conjunto $A \in {a_{i}} i=1,...,N$ y queremos ver como se relaciona con una proposición $B$ podemos usar la regla del producto como:
+\begin{equation}
+P(A|BC) = \frac{P(B|AC)P(A|C)}{P(B|C)}
+\end{equation}
+Luego, si sumamos sobre todos los valores posibles que puede tomar $A$ obtenemos:
+\begin{equation}
+\sum_{i}P(A=a_{i}|BC) = \sum_{i}\frac{P(B|A = a_{i}C)P(A = a_{i}|C)}{P(B|C)} = 1
+\end{equation}
+la suma resulta en $1$ por el resultado que vimos en I, entonces podemos escribir $P(B|C)$ como:
+\begin{equation}
+P(B|C) = \sum_{i}P(B|A = a_{i}C)P(A=a_{i}|C) = \sum_{i}P(B,A=a_{i}|C)
+\end{equation}
+Es interesante notar cómo es que se compone $\sum_{i}P(B|A = a_{i}C)P(A=a_{i}|C)$, el primer término asume como información cierta $A = a_{i}$ y con ello calcula la probabilidad de $B$, pesándola con qué tanta confianza tenemos sobre esa hipótesis de que $A=a_{i}$ sea cierta.
+\end{document}
