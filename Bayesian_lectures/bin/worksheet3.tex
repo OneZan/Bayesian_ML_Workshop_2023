@@ -1,0 +1,48 @@
+\documentclass[12pt]{paper}
+\textwidth=17cm
+\textheight=23.5cm
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,exscale,graphicx}
+%\input epsf
+\parskip 0.3cm
+\usepackage{bm}
+
+
+\title{\begin{center}Bayesian Statistics and Machine Learning Workshop 2023\end{center}}
+\subtitle{\begin{center}\Large Estimación de parámetros y la distribución gaussiana\\ Martín Onetto \end{center}}
+
+\begin{document}
+\maketitle
+
+
+\topmargin -2.0cm
+\oddsidemargin -0.2cm
+\evensidemargin -0.2cm
+
+\vspace{-80pt}
+%This practice is intended for your own exercise and {\bf does not} need to be turned in. 
+
+\section{Questions}
+
+\begin{enumerate}
+\item Discutir el significado de \textit{sufficient statistic}.
+\item ¿Cómo es la dependencia de la incerteza en los parámetros a medida que aumentamos el número de datos?
+\item ¿Qué relación tiene la incerteza de los parámetros con la calidad del ajuste del modelo? 
+\item Discutir la influencia de la prior en las inferencia de los parámetros.
+\end{enumerate}
+\section{Problems}
+En el caso donde no conocemos el valor de $\sigma$ en un modolo gaussiano la inferencia la hacemos sobre los parámetros $\mu,\sigma$. En el caso de $\mu$ ya vimos que la prior menos informativa que podemos poner es una constante. En el caso de $\sigma^{2}$ por ser un parámetro de escala se considera que debe ser uniforme en $\log(\sigma)$ que resulta en $P(\sigma) \prop \frac{1}{\sigma}$. Es decir que:
+\begin{equation}
+P(\mu,\sigma^{2}) \propto \frac{1}{\sigma^{2})
+\end{equation}
+
+\begin{enumerate}
+\item 
+\item Incorporar ahora los datos de 20 tiradas $c$ y  15 $s$. Qué sucede con la forma de la disribución? Como cambia su ancho? Puede vincular la posción del máximo con alguna información de los datos?
+
+\end{enumerate}
+
+\pagestyle{empty}
+
+\end{document}

@@ -1,0 +1,45 @@
+\documentclass[12pt]{paper}
+\textwidth=17cm
+\textheight=23.5cm
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,exscale,graphicx}
+%\input epsf
+\parskip 0.3cm
+\usepackage{bm}
+
+
+\title{\begin{center}Bayesian Statistics and Machine Learning Workshop 2023\end{center}}
+\subtitle{\begin{center}\Large Prior, Likelihood and Posterior Distribution\\ Martín Onetto \end{center}}
+
+\begin{document}
+\maketitle
+
+
+\topmargin -2.0cm
+\oddsidemargin -0.2cm
+\evensidemargin -0.2cm
+
+\vspace{-80pt}
+%This practice is intended for your own exercise and {\bf does not} need to be turned in. 
+
+\section{Questions}
+
+\begin{enumerate}
+\item Discutir el significado de \textit{prior},\textit{likelihood} y \textit{posterior} distribution.
+\item En el esquema de actualización de información, que hipótesis es la que hac que se llegue al mismo resultado si incorporamos los datos individualmente o todos a la vez.
+\item ¿Cómo se manifiesta el aumento de información sobre nuestra confianza de la moneda? 
+\item ¿Por qué se hace cero la probabilidad de que $\theta$ valga 1 cuando incorporamos el dato donde salió seca?
+\end{enumerate}
+\section{Problems}
+
+\begin{enumerate}
+\item Graficar la prior y ver cómo evoluciona la posterior a medida de que se incorporan los datos $ D = \{c,c,s\}$.
+
+\item Incorporar ahora los datos de 20 tiradas $c$ y  15 $s$. Qué sucede con la forma de la disribución? Como cambia su ancho? Puede vincular la posción del máximo con alguna información de los datos?
+
+\end{enumerate}
+
+\pagestyle{empty}
+
+\end{document}
