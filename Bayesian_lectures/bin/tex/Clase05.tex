@@ -1,0 +1,177 @@
+\documentclass[aps,onecolumn,12pt,notitlepage]{revtex4-1}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{anysize}
+\usepackage[spanish]{babel}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\newcommand{\degre}{\ensuremath{^\circ}}
+\usetikzlibrary[patterns]
+\usepackage{enumerate}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{appendix}
+\usepackage{graphicx}
+
+\begin{document}
+
+\renewcommand{\andname}{y}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+
+\title{Introducción a la Probabilidad Bayesiana.  Parte 5, Cuadrados mínimos y teoría de ajustes.}
+\author{Martín Onetto} 
+%\date{\today}
+\maketitle
+\
+
+\textbf{El viejo péndulo, otra vez.}
+
+
+Consideremos el ejemplo de la medición del período de un péndulo que vimos en la parte 4, nuevamente, pero ahora dentro de la información $I$ vamos a incluir que el período $T$ está determinado por un modelo físico. Vamos a considerar que las oscilaciones eran en ángulos pequeños y utilizar el resultado de que para un péndulo ideal $T = \sqrt{\frac{L}{g}}$ siendo $L$ el largo del péndulo y $g$ la aceleración de la gravedad. En lo que sigue consideramos que conocemos con infinita precisión al largo del péndulo $L$ y \textbf{nos vamos concentrar entonces en ver qué podemos decir de $g$ con este modelo y las mediciones}. Respecto a las demás consideraciones, seguimos teniendo una incerteza fija en cada medición que llamamos $\sigma$ y tomamos a cada $t_{i}|t_{j},T,I = t_{i}|T,I $ para todo $i$ y $j$. Para $n$ mediciones la likelihood ahora resulta:
+\begin{equation}
+\begin{aligned}
+\displaystyle P(g|D,L,\sigma,I) &\propto P(D|g,L,\sigma,I) P(g|L,\sigma,I) = P(D|g,L,\sigma,I) P(g|I)\\
+\displaystyle &\propto \prod_{i}^{n} \exp \left\{ \frac{\left(t_{i} - \sqrt{\frac{L}{g}}\right)^2}{2\sigma^2} \right\} P(g|I)
+\end{aligned}
+\end{equation}
+Vemos que al hacer la regla del producto, la prior en $g$ tiene la dependencia $P(g|L,\sigma,I)$, sin embargo sabemos que el valor de la aceleración de la gravedad sin considerar los datos no estará vinculado a $L$ ni a $\sigma$ por lo tanto hacemos la reducción $P(g|L,\sigma,I) = P(g|I)$. Consideraremos por simpleza en este ejemplo una prior plana en $g$, es decir $P(g|I) \propto 1$. 
+
+Si trabajamos sobre la expresión de la likelihood, vemos que la posterior resulta:
+\begin{equation}
+\displaystyle{P(g|D,L,\sigma,I) \propto \exp \left\{ -\frac{\left(\bar{t} - \sqrt{\frac{L}{g}}\right)^2}{2\frac{\sigma^2}{n}} \right\}}
+\end{equation}
+Si miramos esta distribución como función de $g$ podríamos pensar que se parece a una gaussiana, pero no lo es. Si se quiere, se podría decir que es una gausiana en la función $\frac{1}{\sqrt{g}}$. Cómo lo que nos interesa es la distribución de $g$ y no al de alguna función tenemos que aceptar el resultado y en caso de hacer una estimación proceder con la $\textbf{aproximación gaussiana}$:
+\begin{equation}
+ \displaystyle \log\left[P(\theta|D,I)\right] \sim \log\left[P(\theta_{max}|D,I)\right] + \frac{1}{2} \left(\frac{\partial^2 \log\left[P(\theta|D,I)\right] }{\partial \theta^2}\right)_{\theta =  \theta_{max}}\left(\theta-\theta_{max}\right)^2
+\end{equation}
+donde $\theta_{max}$ cumple $\left(\frac{\partial P(\theta|D,I)}{\partial \theta} \right)_{\theta= \theta_{max}} = 0$, recordemos que para que sea valida la aproximación estamos consideran que hay sólo un máximo.
+
+Para nuestro ejemplo la distribución posterior para $g$ con la aproximación es luego:
+\begin{equation}
+P(g|L,D,I) \sim \frac{1}{\sqrt{2\pi\sigma^2_{g}}} \exp \left\{-\frac{(g-\mu_{g})^2)}{2\sigma_{g}^2}\right\}
+\end{equation}
+con $\mu_{g} = g_{max}$ y $ \sigma^{-2} = \left( \frac{\partial^2 \log \left[ P(g|D,I) \right] }{\partial g^2} \right)_{g_{max}}$, para calcular ésto hacemos:
+\begin{align}
+\frac{\partial \log \left[ P(g|D,I) \right]}{\partial g} &= \frac{\partial \ cte}{\partial g} - \frac{\partial}{\partial g}\left(\frac{\left(\bar{t}-\sqrt{\frac{L}{g}}\right)^2}{2\sigma^{2}/n}\right) = -\frac{1}{2}\frac{(\bar{t}-\sqrt{\frac{L}{g}})}{\sigma^2/n}\sqrt{\frac{L}{g^{3}}} 
+\label{eq:max} \\
+\frac{\partial^2 \log\left[P(g|D,I)\right] }{\partial g^2} &= -\frac{1}{4}\frac{1}{\sigma^2/n}\frac{L}{g^{3}} + \frac{3}{4} \frac{\left(\bar{t}-\sqrt{\frac{L}{g}}\right)}{\sigma^2/n}\sqrt{\frac{L}{g^{5}}}
+\label{eq:curv}
+\end{align}
+con la ecuación \ref{eq:max} podemos calcular el máximo igualándola a cero que resulta en
+\begin{equation}
+\begin{aligned}
+-\frac{1}{2} \frac{(\bar{t}-\sqrt{\frac{L}{g}})}{\sigma^2/n}\sqrt{\frac{L}{g^{3}}} &= 0 \\
+\mu_{g} = g_{max} &= \frac{L}{\bar{t}^2}
+\end{aligned}
+\end{equation}
+donde $\mu_{g}$ es el máximo y valor medio de la distribución gaussiana que estamos contruyendo para $g$.
+
+Luego, evaluando la ecuación \ref{eq:curv} en $g_{max}$ tenemos
+\begin{equation}
+\left(\frac{\partial^2 \log\left[P(g|D,I)\right] }{\partial g^2}\right)_{g_{max}} = -\frac{1}{4} \frac{n \left(\bar{t}^3/L\right)^2}{\sigma^2} 
+\end{equation}
+
+Definiendo un $\sigma_{g}$ que corresponda al parámetro de dispersión de la aproximación gausiana de la posterior de $g$ vemos que:
+\begin{equation}
+\displaystyle \sigma^{2}_{g} = -\frac{1}{\left(\frac{\partial^2 \log\left[P(g|D,I)\right] }{\partial g^2}\right)}  = \frac{\sigma^2}{n\left[\bar{t}^3/(2L)\right]^2}
+\end{equation}
+Como era de esperar los parámetros de la posterior de $g$ serán función de los datos. En particular aquí toda la información de las mediciones está concentrada en dos número $n$ y $\bar{t}$.
+
+
+Es interesante notar que en la ecuación $\ref{eq:max}$ corresponde a tomar el mínimo sobre el parámetro del exponente. Es decir maximizar algo de la forma $ \sum_{i}\left(y_{i} -f(\boldsymbol{\theta)}_{i} \right)^2$ por lo tanto, la aproximación gaussiana obtiene como valor estimado el mismo que se deriva de usar el método de cuadrados mínimos. 
+
+\textbf{Regressions}
+
+Podemos generalizar el resultado anterior para mediciones de la forma $\{y_{i},x_{i}\}$ donde queremos ajustar los parámetros $\boldsymbol{\theta}$ de una función $f(x,\boldsymbol{\theta}$), que corresponde al valor medio de cada $y_{i}$, dada una incerteza de medición $\sigma$. Si escribimos la likelihood tenemos:
+\begin{align}
+P(\{y_{i}\}|\boldsymbol{\theta},\{x_{i}\},I) \propto \exp \left\{-\frac{1}{2\sigma^2} \sum_{i} \left(y_{i}-f(x_{i},\boldsymbol{\theta})\right)^{2}\right\}
+\end{align}
+
+Si procedemos con la apoximación normal para la posterior las ecuaciónes son:
+\begin{align}
+\frac{ \partial \log \left[P \left( \boldsymbol{\theta} | \{ x_{i},y_{i} \},\sigma ,I \right)\right]}{ \partial \theta_{j}}  = \frac{1}{\sigma^2} \sum_{i} \left(y_{i} - f(x_{i},\boldsymbol{\theta})\right)\frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}}
+\end{align}
+Igualando esta ecuación a cero obtenemos los valores de $\theta$ que maximizan la posterior, o likelihood ya que tomamos prior constante, de $\boldsymbol{\theta}$. La solución corresponde a los $\boldsymbol{\theta}$ que satisfacen $f(x_{i},\boldsymbol{\theta}) = y_{i}$. 
+Derivando nuevamente obtenemos,
+\begin{equation}
+\frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | \{ x_{i},y_{i} \},\sigma^{2},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}} = \frac{1}{\sigma^2} \sum_{i} \left[ \left(y_{i} - f(x_{i},\boldsymbol{\theta})\right) \frac{\partial^2 f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j} \partial \theta_{k}}  - \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{k}}\right]
+\end{equation}
+Si evaluamos la expresión anterior en los $\boldsymbol{\theta}$ en los que satisfacen $f(x_{i},\boldsymbol{\theta}) = y_{i}$, obtenemos
+\begin{equation}
+\left( \frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | \{ x_{i},y_{i} \},\sigma^{2},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}} \right)_{f(x_{i},\boldsymbol{\theta}) = y_{i}}  = -\frac{1}{\sigma^2} \sum_{i} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{k}}
+\end{equation}
+
+\textbf{Un ajuste con datos discretos}
+
+En el caso de que tengamos mediciones de cuentas en un espectrómetro y un modelo que describe cómo se comporta la intensidad para diferentes valores de longitud de onda, el modelo estádistico más usual para la \textit{likelihood} es la distribución de \textit{ Poisson} que está gobernada por un sólo parámetro $\lambda$
+\begin{equation}
+P(K = k|\lambda,I) = \frac{e^{-\lambda} \lambda^k}{k!}
+\end{equation}
+Para adaptar la distribución al problema de la cantidad  de cuantas $K$ en cada canal de energía $\nu_{i}$ escribimos:
+\begin{equation}
+P\left(K_{i} = k|\nu_{i},\boldsymbol{\theta},I\right) = \frac{e^{-\lambda(\nu_{i},\boldsymbol{\theta})} \left(\lambda(\nu_{i},\boldsymbol{\theta})\right)^k}{k!}
+\end{equation}
+donde $\lambda(\nu_{i},\boldsymbol{\theta})$ denota el modelo físico que tenemos para la intensidad de cada $\nu_{i}$ y gobernada por otros parámetros $\boldsymbol{\theta}$. Por ejemplo si estuviésemos midiendo la radiación de cuerpo negro esos parámetros podrían ser la temperatura $T$, la constante de Plank $h$, etc.
+
+Si de nuestras mediciones $k_{i}$ para algunos $\nu_{i}$ queremos determinar el valor de los parámetros simplemente usamos el teorema de Bayes:
+\begin{equation}
+P\left(\boldsymbol{\theta}| \{\nu_{i},k_{i}\},I\right) \propto    \exp\left\{-\sum_{i} \lambda\left( \nu_{i},\boldsymbol{\theta}\right)\right\} \prod_{i}\frac{\lambda\left(\nu_{i},\boldsymbol{\theta}\right)^{k_{i}}}{k_{i}!} P(\boldsymbol{\theta}|I)
+\end{equation}
+Aquí al hacer la aproximación gausiana para la distribución de $\boldsymbol{\theta}$:
+\begin{equation}
+\begin{aligned}
+\frac{\partial \log \left[P\left(\boldsymbol{\theta} | \{ \nu_{i},k_{i} \},I \right)\right]}{ \partial \theta_{j}} &= -\sum_{i} \frac{\partial \lambda}{\partial \theta_{j}} + \sum_{i} \frac{k_{i}}{\lambda_{i}} \frac{\partial  \lambda_{i}}{\partial \theta_{i}}  + \frac{\partial log\left[P(\theta|I)\right]}{\partial \theta} \\
+& = \sum_{i} \left( \frac{k_{i}}{\lambda_{i}} -1\right) \frac{\partial \lambda_{i}}{\partial \theta_{j}} 
+\end{aligned}
+\end{equation}
+Podemos ver que la condición para que se anule esta suma es que $\lambda\left(\nu_{i},\boldsymbol{\theta}\right) = k_{i}$. Esto corresponde a que cada medición $k_{i}$ corresponda al valor de $\lambda$ en ese $\nu_{i}$. A su vez, la expresión también se anula para los extremos de $\lambda_{i}$, es decir $\frac{\partial \lambda_{i}}{\partial \theta_{j}} = 0$. Sin embargo, esta segunda manera tiene la dificultad de que debe ser cero para cualquier valor de los datos por lo que tomamos $k_{i}=\lambda_{i}$ como máximo de $lambda_{i}$.
+Para la segunda derivada, tenemos:
+\begin{equation}
+\frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | \{ \nu_{i},k_{i} \},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}} =  \sum_{i} \left[ \left( \frac{k_{i}}{\lambda_{i}} -1\right) \frac{\partial^{2} \lambda_{i}}{\partial \theta_{j} \theta_{k}} - \left(\frac{k_{i}}{\lambda^{2}_{i}}\frac{\partial \lambda_{i}}{\partial \theta_{k}}\frac{\partial \lambda_{i}}{\partial \theta_{j}}  \right)\right]
+\end{equation}
+Si evaluamos en el máximo que encontramos anteriormente, $k_{i} = \lambda_{i}$, tenemos:
+\begin{equation}
+\left(\frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | \{ \nu_{i},k_{i} \},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}}\right)_{\lambda_{max}}=  -\sum_{i}  \frac{1}{k_{i}}\left(\frac{\partial \lambda_{i}}{\partial \theta_{k}}\frac{\partial \lambda_{i}}{\partial \theta_{j}}\right)_{\left(\lambda (\boldsymbol{\theta},\nu_{i}) = k_{i}\right)}   
+\end{equation}
+\newpage
+\textbf{Un comentario sobre las varianzas obtenidas}
+
+En ambos casos generales de ajuste obtuvimos una expresión para la varianza de la distribución posteriors de los parámetros. En estos casos no usamos más información de los datos que su máximo. Podemos calcular ese objeto teniendo en cuenta toda la distribución de los datos, es decir:
+\begin{equation}
+\int \prod_{i}  \frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | x_{i},y_{i},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}}  P(y_{i}|x_{i},\boldsymbol{\theta}) dy_{i} \equiv I(\boldsymbol{\theta}|\{x_{i}\})
+\end{equation}
+Esta cantidad $I(\boldsymbol{\theta}|\{x_{i}\})$ se la conoce como la \textit{Información de Fisher}. La cual podemos interpretar en nuestro procedimiento como el valor medio de la incerteza que tenemos de nuestros parámetros, sobre toda la distribución de los datos. Curiosamente si hacemos ambos cálculos explícitamente obtenemos:
+
+\textbf{Likelihood  Gaussiana}
+
+\begin{equation}
+\prod_{i} \int  \frac{\partial^{2}\log \left[P\left(\boldsymbol{\theta} | x_{i},y_{i} ,\sigma^{2},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}}   P(y_{i}|{x_{i}},\boldsymbol{\theta}) dy_{i} =
+\end{equation}
+\begin{align}
+= \int \frac{1}{\sigma^2} \sum_{i} \left[ \left(y_{i} - f(x_{i},\boldsymbol{\theta} ) \right) \frac{\partial^2 f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j} \partial \theta_{k}}  - \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{k}}\right] \times \\ \times \frac{1}{\sqrt{2\pi\sigma^{2}}} \exp \left\{\frac{-1}{2\sigma^2} \sum_{i} \left(y_{i} - f(x_{i},\boldsymbol{\theta})\right)^2 \right\} \prod_{i} dy_{i}
+\end{align}
+Aquí estamos integrando sobre la distribución de los datos, por lo que el primer término dentro de la suma desaparecerá ya que el valor medio de la gaussiana es $f(x_{i},\boldsymbol{\theta})$. Luego, cómo las $f$ no dependen de $y_{i}$ resultan constantes ante la integración es así por lo que el resultado final es:
+\begin{align}
+I_{jk}(\boldsymbol{\theta}|\{ x_{i} \}) &= - \sum_{i} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{k}} \frac{1}{\sigma^{2}}\int \frac{1}{\sqrt{2\pi\sigma^{2}}} \exp \left\{-\frac{1}{2\sigma^2} \sum_{i} \left(y_{i} - f(x_{i},\boldsymbol{\theta})\right)^2 \right\} \prod_{i} dy_{i}\\
+ &=  -\sum_{i} \frac{1}{\sigma^{2}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{j}} \frac{\partial f(x_{i},\boldsymbol{\theta})}{\partial \theta_{k}} 
+\end{align}
+Es curioso ver que el resultado de evaluarlo en el máximo o pesarlo sobre toda la distribución coincide. Un punto más para la aproximación gaussiana.
+\newpage
+\textbf{Likelihood  Poisson}
+
+Veamos qué pasa para la Poisson, haciendo el mismo cálculo que antes obtenemos:
+\begin{align}
+I_{jk} (\boldsymbol{\theta}| \{\nu_{i}\}) &= \sum_{i} \sum_{k_{i} = 0}^{\infty} \frac{ \partial^{2}\log \left[ P \left(\boldsymbol{\theta} | \nu_{i},k_{i} ,\sigma^{2},I \right)\right] }{ \partial \theta_{j} \partial \theta_{k}}  P( k_{i}| \nu_{i} ,\boldsymbol{\theta} )  \\
+&= \sum_{i} \sum_{k_{i}= 0}^{\infty}\left\{ \left[ \left( \frac{k_{i}}{\lambda_{i}} -1\right) \frac{\partial^{2} \lambda_{i}}{\partial \theta_{j} \theta_{k}} - \left(\frac{k_{i}}{\lambda^{2}_{i}}\frac{\partial \lambda_{i}}{\partial \theta_{k}}\frac{\partial \lambda_{i}}{\partial \theta_{j}}  \right)\right] e^{-\sum_{i} \lambda\left( \nu_{i},\boldsymbol{\theta}\right)} \prod_{i}\frac{\lambda\left(\nu_{i},\boldsymbol{\theta}\right)^{k_{i}}}{k_{i}!} \right \}
+\end{align}
+En la expresión anterior tenemos términos lineal es en $k_{i}$ pesados por su probabilidad, esto por definición es el valor medio de $k_{i}$ El valor medio de una distribución de Poisson es $E[k_{i}] = \lambda_{i}$. Reemplazando obtenemos:
+\begin{equation}
+I_{jk} (\boldsymbol{\theta}| \{\nu_{i}\}) = -\sum_{i} \left(\frac{1}{\lambda_{i}} \frac{\partial \lambda_{i}}{\partial \theta_{k}}\frac{\partial \lambda_{i}}{\partial \theta_{j}}\right)
+\end{equation}
+
+En conclusión podemos decir que a la hora de hacer un ajuste, tanto con un modelo discreto de Poisson o continuo Gaussiano, la incerteza que asignamos como $-\left(\frac{\left[P\left(\boldsymbol{\theta} | x_{i},y_{i} ,\sigma^{2},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}}\right)^{-1}$ coincide con la \textit{información de Fisher} de los parámetros, dados los valores de $x_{i}$ que elegimos.
+\end{document}
+
