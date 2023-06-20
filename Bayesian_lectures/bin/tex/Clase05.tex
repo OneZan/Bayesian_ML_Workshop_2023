@@ -41,9 +41,9 @@ Vemos que al hacer la regla del producto, la prior en $g$ tiene la dependencia $
 
 Si trabajamos sobre la expresión de la likelihood, vemos que la posterior resulta:
 \begin{equation}
-\displaystyle{P(g|D,L,\sigma,I) \propto \exp \left\{ -\frac{\left(\bar{t} - \sqrt{\frac{L}{g}}\right)^2}{2\frac{\sigma^2}{n}} \right\}}
+\displaystyle{P(g|D,L,\sigma,I) \propto \exp \left\{ -\frac{-\left(\bar{t} - \sqrt{\frac{L}{g}}\right)^2}{2\frac{\sigma^2}{n}} \right\}}
 \end{equation}
-Si miramos esta distribución como función de $g$ podríamos pensar que se parece a una gaussiana, pero no lo es. Si se quiere, se podría decir que es una gausiana en la función $\frac{1}{\sqrt{g}}$. Cómo lo que nos interesa es la distribución de $g$ y no al de alguna función tenemos que aceptar el resultado y en caso de hacer una estimación proceder con la $\textbf{aproximación gaussiana}$:
+Si miramos esta distribución como función de $g$ podríamos pensar que se parece a una gaussiana, pero no lo es.Se podría decir que es una gausiana en la función $\frac{1}{\sqrt{g}}$. Cómo lo que nos interesa es la distribución de $g$ y no la de alguna función tenemos que aceptar el resultado y en caso de hacer una estimación proceder con la $\textbf{aproximación gaussiana}$:
 \begin{equation}
  \displaystyle \log\left[P(\theta|D,I)\right] \sim \log\left[P(\theta_{max}|D,I)\right] + \frac{1}{2} \left(\frac{\partial^2 \log\left[P(\theta|D,I)\right] }{\partial \theta^2}\right)_{\theta =  \theta_{max}}\left(\theta-\theta_{max}\right)^2
 \end{equation}
@@ -81,7 +81,7 @@ Definiendo un $\sigma_{g}$ que corresponda al parámetro de dispersión de la ap
 Como era de esperar los parámetros de la posterior de $g$ serán función de los datos. En particular aquí toda la información de las mediciones está concentrada en dos número $n$ y $\bar{t}$.
 
 
-Es interesante notar que en la ecuación $\ref{eq:max}$ corresponde a tomar el mínimo sobre el parámetro del exponente. Es decir maximizar algo de la forma $ \sum_{i}\left(y_{i} -f(\boldsymbol{\theta)}_{i} \right)^2$ por lo tanto, la aproximación gaussiana obtiene como valor estimado el mismo que se deriva de usar el método de cuadrados mínimos. 
+Es interesante notar que en la ecuación $\ref{eq:max}$ corresponde a tomar el mínimo sobre el parámetro del exponente, es decir maximizar algo de la forma $ \sum_{i}\left(y_{i} -f(\boldsymbol{\theta)}_{i} \right)^2$. Por lo tanto, la aproximación gaussiana obtiene como valor estimado el mismo que se deriva de usar el método de cuadrados mínimos. 
 
 \textbf{Regressions}
 
@@ -110,13 +110,13 @@ En el caso de que tengamos mediciones de cuentas en un espectrómetro y un model
 \begin{equation}
 P(K = k|\lambda,I) = \frac{e^{-\lambda} \lambda^k}{k!}
 \end{equation}
-Para adaptar la distribución al problema de la cantidad  de cuantas $K$ en cada canal de energía $\nu_{i}$ escribimos:
+Para adaptar la distribución al problema de la cantidad de cuentas $K$ en cada canal de energía $\nu_{i}$ escribimos:
 \begin{equation}
 P\left(K_{i} = k|\nu_{i},\boldsymbol{\theta},I\right) = \frac{e^{-\lambda(\nu_{i},\boldsymbol{\theta})} \left(\lambda(\nu_{i},\boldsymbol{\theta})\right)^k}{k!}
 \end{equation}
-donde $\lambda(\nu_{i},\boldsymbol{\theta})$ denota el modelo físico que tenemos para la intensidad de cada $\nu_{i}$ y gobernada por otros parámetros $\boldsymbol{\theta}$. Por ejemplo si estuviésemos midiendo la radiación de cuerpo negro esos parámetros podrían ser la temperatura $T$, la constante de Plank $h$, etc.
+donde $\lambda(\nu_{i},\boldsymbol{\theta})$ denota el modelo físico que tenemos para la intensidad de cada $\nu_{i}$ y que depende de otros$\boldsymbol{\theta}$. Por ejemplo si estuviésemos midiendo la radiación de cuerpo negro esos parámetros podrían ser la temperatura $T$, la constante de Plank $h$, etc.
 
-Si de nuestras mediciones $k_{i}$ para algunos $\nu_{i}$ queremos determinar el valor de los parámetros simplemente usamos el teorema de Bayes:
+Si de nuestras mediciones $k_{i}$ para algunos $\nu_{i}$ queremos determinarlos parámetros simplemente usamos el teorema de Bayes:
 \begin{equation}
 P\left(\boldsymbol{\theta}| \{\nu_{i},k_{i}\},I\right) \propto    \exp\left\{-\sum_{i} \lambda\left( \nu_{i},\boldsymbol{\theta}\right)\right\} \prod_{i}\frac{\lambda\left(\nu_{i},\boldsymbol{\theta}\right)^{k_{i}}}{k_{i}!} P(\boldsymbol{\theta}|I)
 \end{equation}
@@ -127,7 +127,7 @@ Aquí al hacer la aproximación gausiana para la distribución de $\boldsymbol{\
 & = \sum_{i} \left( \frac{k_{i}}{\lambda_{i}} -1\right) \frac{\partial \lambda_{i}}{\partial \theta_{j}} 
 \end{aligned}
 \end{equation}
-Podemos ver que la condición para que se anule esta suma es que $\lambda\left(\nu_{i},\boldsymbol{\theta}\right) = k_{i}$. Esto corresponde a que cada medición $k_{i}$ corresponda al valor de $\lambda$ en ese $\nu_{i}$. A su vez, la expresión también se anula para los extremos de $\lambda_{i}$, es decir $\frac{\partial \lambda_{i}}{\partial \theta_{j}} = 0$. Sin embargo, esta segunda manera tiene la dificultad de que debe ser cero para cualquier valor de los datos por lo que tomamos $k_{i}=\lambda_{i}$ como máximo de $lambda_{i}$.
+Podemos ver que la condición para que se anule esta suma es que $\lambda\left(\nu_{i},\boldsymbol{\theta}\right) = k_{i}$. Esto corresponde a que cada medición $k_{i}$ coincida con el valor de $\lambda$ en ese $\nu_{i}$. A su vez, la expresión también se anula para los extremos de $\lambda_{i}$, es decir $\frac{\partial \lambda_{i}}{\partial \theta_{j}} = 0$. Sin embargo, esta segunda manera tiene la dificultad de que debe ser cero para cualquier valor de los datos por lo que tomamos $k_{i}=\lambda_{i}$ como máximo de $\lambda_{i}$.
 Para la segunda derivada, tenemos:
 \begin{equation}
 \frac{\partial^{2} \log \left[P\left(\boldsymbol{\theta} | \{ \nu_{i},k_{i} \},I \right)\right]}{ \partial \theta_{j} \partial \theta_{k}} =  \sum_{i} \left[ \left( \frac{k_{i}}{\lambda_{i}} -1\right) \frac{\partial^{2} \lambda_{i}}{\partial \theta_{j} \theta_{k}} - \left(\frac{k_{i}}{\lambda^{2}_{i}}\frac{\partial \lambda_{i}}{\partial \theta_{k}}\frac{\partial \lambda_{i}}{\partial \theta_{j}}  \right)\right]
