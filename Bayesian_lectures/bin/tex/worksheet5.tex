@@ -1,0 +1,174 @@
+\documentclass[12pt]{paper}
+\textwidth=17cm
+\textheight=23.5cm
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,exscale,graphicx}
+%\input epsf
+\parskip 0.3cm
+\usepackage{bm}
+
+
+\title{\begin{center}Bayesian Statistics and Machine Learning Workshop 2023\end{center}}
+\subtitle{\begin{center}\Large Parametric Priors and Hyperparameters\\ Martín Onetto \end{center}}
+
+\begin{document}
+\maketitle
+
+
+\topmargin -2.0cm
+\oddsidemargin -0.2cm
+\evensidemargin -0.2cm
+
+\vspace{-80pt}
+%This practice is intended for your own exercise and {\bf does not} need to be turned in. 
+
+\section{Questions}
+
+\begin{enumerate}
+
+\item Describir la relación estadística entre los datos, parámetros e hiperparámetros.
+\item Describir el rol de los hiperparámetros en el modelo estadístico.
+\end{enumerate}
+
+\subsection{Problems}
+
+\begin{enumerate}
+\item \textbf{Prostate cancer}
+
+\begin{enumerate}
+\item Cargar la base de datos que describe las variables relacionadas al cancer de prostata. La variable respuesta es \textit{lpsa}. 
+\item Describir las columnas como numéricas y categóricas.
+\item Ajustar un modelo lineal (con \textit{intercept}) $y =\beta^{T}X$. Para eso determinar el máximun likelihood $\beta_{MLE}$ y su varianza $\Sigma_{\beta}$. Tomar como $\sigma$ del ajuste gaussiano al desvío estandard de los datos respuesta.
+\item Calcular el \textit{Z-score} de cada $\beta$ definido como:
+$$
+z_{j} = \frac{\beta_{j}}{\sqrt{ \Sigma_{jj}}}
+$$
+\item Repetir el ajuste y el cálculo del \textit{Z-score} removiendo de a uno a la vez el parámetro con menor valor asboluto de $z$. Y ver:
+\begin{enumerate}
+\item Cómo evolucionan los valores de los parámetros
+\item Cómo cambia su incerteza
+\item Cómo cambia el mean squared error del ajuste.
+\end{enumerate}
+
+\item Proponer modelos \textit{Ridge} y \textit{Lasso} para ver la misma evolución del punto \textit{e)} a medida que aumentamos el hyper parámetro. Interpretar
+\end{enumerate}
+\newpage
+\item \textbf{Hierarchical models}
+
+\textbf{Rat tumor problem}
+\begin{enumerate}
+\item Expreimentos previos sobre efectividad de tratamiento contra cancer en ratones de experimentos generaron los siguientes datos:
+\begin{verbatim}
+data = [0/20,0/20,0/19,0/18,1/18,1/18,2/20,1/10,3/20,2/13,
+        4/20,10/48,6/23,5/19,0/20,0/18,2/25,5/49,9/48,4/19,
+        6/22,0/20,0/17,2/24,2/19,10/50,4/19,6/20,0/20,1/20,
+        2/23,5/46,4/20,4/19,6/20,0/20,1/20,2/20,3/27,4/20,5/22,
+        6/20,0/20,1/20,2/20,2/17,4/20,11/46,16/52,0/19,1/20,2/20,
+        7/49,4/20,12/49,15/47,0/19,1/19,2/20,7/47,4/20,5/20,15/46,
+        0/19,1/19,2/20,3/20,4/20,5/20,9/24]
+\end{verbatim}
+donde el numerador es número de ratones con tumores después del tratamiento y el denominador es el número total de ratones en el ensayo. 
+\item Usar un modelo binomial donde cada resultado se toma como independiente para estimar la taza de efectividad del tratamiento $\theta$. Calcular la likelihood de que un nuevo experimento resulte en $y_{new} = 4/14$ dado los experimentos anteriores. Interpretar
+\item Proponer un modelo jerárquico de la forma:
+\begin{align}
+P(\alpha,\beta) &\propto (\alpha + \beta)^{-5/2}\\
+P(\theta_{i}|\alpha,\beta) &\sim Beta(\alpha,\beta)\\
+P(n_{i}|N_{i},\theta_{i}) &\sim Binom(\theta_{i},N_{i})
+\end{align}
+\item La posterior marginal de los hierparámetros tiene la forma:
+\begin{equation}
+P(\alpha,\beta|\{n_{i},N_{i}\}) \propto P(\alpha,\beta) \prod_{i=1}^{N}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\frac{\Gamma(\alpha+n_{j})\Gamma(\beta + N_{j}-n_{j})}{\Gamma(\alpha + \beta + n_{j})}
+\end{equation}
+Encontrar los $\alpha$ y $\beta$ que hacen máxima a la posterior. Comparar el valor de $\frac{\hat{\alpha}}{\hat{\alpha}+\hat{\beta}}$ con el máximo de la posteior de $\theta$ en el inciso \textit{b)}
+
+\item Simular $\theta$ de la distribución $P(\theta|D,\alpha,\beta) \approx P(\theta|D,\hat{\alpha},\hat{\beta})$ y hacer un histograma con ellos. (Al método de quedarnos con la máxima posterior de los hiperárametros y no con toda su distribución se lo conoce como EM algorithm.)
+
+\item Para cada parámetro simulado $\theta^{s}$ simular un $n^{s}$ para $N = 14$ (correspondiente al nuevo experimento). Hacer un histograma de los $n^{s}$ resultantes y evaluar en que percentil cae el nuevo experimento. Comparar con el resultado anterior.
+
+\end{enumerate}
+\newpage
+\textbf{Eight schools problem }
+
+Nos interesa evalaluar como cambia el resultado de los alumnos en los SAT después de un pograma de coaching. El programa se implementó en 8 escuelas y sus resultados se resumen en la siguiente tabla:
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{ccc}
+School & Estimated effect $y_{j}$ & Standard Error of effect estimate $\sigma_{j}$ \\\hline
+A      & 28                       & 15                                             \\
+B      & 8                        & 10                                             \\
+C      & -3                       & 16                                             \\
+D      & 7                        & 11                                             \\
+E      & -1                       & 9                                              \\
+F      & 1                        & 11                                             \\
+G      & 18                       & 10                                             \\
+H      & 12                       & 18                                            
+\end{tabular}
+\end{table}
+\begin{enumerate}
+\item Calcular los intervalos de $95\%$, $(y_{j}\pm 2\sigma_{j})$ de cada escuela independientemente y ver que todos se solapan sustancialmente. Concluir que pensar que cada escuela está aislada de la otra en los efectos del coaching no es una buena hipótesis. Por qué?
+\item Considerar que los resultados observados son datos independientes de un  mismo fenómeno e independientes que vienen de una distribución normal con parámetros $(\mu,\tau)$. Calcula la posterior de $\mu$ y dar su intervalo de credivilidad de 95\%. Usando el máximo de la posterior de $\mu$ calcular la likelihood de que un efect haya sido $28$. Es verosimil ?
+
+\item Proponer un modelo jerárquico de la forma:
+\begin{align*}
+P(\mu,\tau^{2}) &\propto 1\\
+P(\theta_{j}|\mu,\tau^{2}) &\sim N(\mu,\tau^{2})\\
+P(y_{j}|\theta_{j},\sigma_{j}) &\sim N(\theta_{j},\sigma_{j})
+\end{align*}
+donde vamos a tomar a los $\sigma_{j}$ como los valores std effects estimados de los datos y no haremos inferencias sobre ellos.
+
+En este modelo la posterior marginal de $\mu|\tau,y$ es:
+\begin{equation}
+P(\mu|\tau,y) \sim N(\hat{\mu},V_{\mu})
+\end{equation}
+donde:
+\begin{align}
+\hat{\mu} &= \frac{\sum_{i =1}^{8}\frac{1}{\sigma_{j}^{2}+ \tau^{2}}\bar{y_{j}}}{\frac{1}{\sigma_{j}^{2}+ \tau^{2}}} \\
+V_{\mu}^{-1} &= \sum_{i=1}^{8}\frac{1}{\sigma_{j}^{2} + \tau^{2}}
+\end{align}
+La posterior de $\tau$ resulta una función intrincada de la forma:
+\begin{equation}
+P(\tau^{2}|y) \propto V_{\mu}^{-1/2} \prod_{i=1}^{8} (\sigma_{j}^{2}+ \tau^{2})^{-1/2} \exp \left(-\frac{(\bar{y_{j}} - \hat{\mu})^{2}}{2(\sigma^{2}_{j}+\tau^{2})}\right)
+\end{equation}
+\end{enumerate}
+
+
+
+Una manera de ahcer essto es usar el siguiente código:
+
+\begin{verbatim}
+import numpy as np
+# Define the unnormalized distribution function
+def unnormalized_distribution(tau2, y, sigma2,mu_hat,V_mu):
+    product_term = np.sqrt(V_mu)*np.prod(1 / np.sqrt(sigma2 + tau2))
+    exponent_term = np.exp(-np.sum((y - mu_hat)**2 / (2 * (sigma2 + tau2))))
+    return product_term * exponent_term
+
+# Create an array of tau values
+tau_min = 0
+tau_max = 30
+num_tau_samples = 30000
+tau_samples = np.linspace(tau_min, tau_max, num_tau_samples)
+
+# Evaluate the unnormalized distribution at tau values
+unnormalized_values = unnormalized_distribution(tau_samples, y, sigma2,mu_hat,V_mu)
+
+# Normalize the distribution
+normalized_values = unnormalized_values / np.sum(unnormalized_values)
+
+# Sample from the normalized distribution using numpy's choice function
+num_samples = 1000
+samples = np.random.choice(tau_samples, size=num_samples, p=normalized_values)
+\end{verbatim}
+\item Simular nuevos efectos para cada escuela $j$ y graficar cómo se distribuyen. Para esto tomar 1000 simulaciones de la posterior de $\tau^{2}|y$ luego samplear de la posterior $P(\mu|\tau,y)$, esto nos da 1000 muestras de la distribución cojunta $P(\mu,\tau^{2}|y)$. Para cada una de las muestras simuladas simular un $\theta_{j}$ de cada escuela y con él simular un dato $y_{j}$, eso resulta en $(1000,8)$ simulaciones de datos. 
+\item Hacer un histograma con las simulaciones obtenidas para cada escuela, y calcular numericamente el intervalo de confianza del 95\% para cada una. Comparar con los intervalos calculados en los incisos anteriores.
+\item Ver el como es el comportamiento de $E[\theta_{j}|\hat{mu},\tau^{2}$ como función de $\tau \in [0,30]$.
+\item Ver el como es el comportamiento de $Var[\theta_{j}|\hat{mu},\tau^{2}$ como función de $\tau \in [0,30]$.
+\end{enumerate}
+
+\pagestyle{empty}
+
+
+
+\end{document}
