@@ -1,0 +1,134 @@
+\documentclass[aps,onecolumn,12pt,notitlepage]{revtex4-2}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{anysize}
+\usepackage[spanish]{babel}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\newcommand{\degre}{\ensuremath{^\circ}}
+\usetikzlibrary[patterns]
+\usepackage{enumerate}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{appendix}
+\usepackage{graphicx}
+
+\begin{document}
+
+\renewcommand{\andname}{y}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+
+\title{Introducción a la Probabilidad Bayesiana.  Parte 6, Comparación de modelos, la navaja de Occam y los P-values.}
+\author{Martín Onetto} 
+%\date{\today}
+\maketitle
+\
+
+\textbf{Bayes Factor y la navaja de Occam}
+
+Hasta ahora nos hemos concentrado en actualizar nuestra información sobre los parámetros $\boldsymbol{\theta}$. Pero qué sucede cuando tenemos más de un modelo $M_{i}$ para describir a nuestros datos y consideramos a cada uno de ellos como válidos. Para cada uno de ellos tenemos:
+\begin{equation}
+P(M_{i}|D,I) = \frac{P(D|M_{i} I) P(M_{i}|I)}{P(D|I)}
+\end{equation}
+Si retomamos la interpretación bayesiana de la probabilidad, la expresión $P(M_{i}|D,I)$ cuantifica la confianza tenemos de que el modelo $M_{i}$ sea cierto. Ahora bien, siguiendo la filosofía de la famosa expresión ``\textit{All models are wrong}'' de George Box, el valor de $P(M_{i}|D,I)$ nunca será $1$ en la práctica. Por lo tanto en lugar de tomar la probabilidad de un modelo de forma absoluta, podemos ver la relación entre las probabilidades de cada modelo. Para eso hacemos:
+\begin{equation}
+\frac{P(M_{i}|D,I)}{P(M_{j}|D,I)} = \frac{P(D|M_{i} I)}{P(D|M_{j} I)} \frac{P(M_{i}|I)}{P(M_{j}|I)}
+\label{eq:modelos}
+\end{equation}
+al hacer el cociente la probabilidad de los datos sin especificar el modelo, $P(D|I)$, se cancela y nos queda simplemente el cociente entre la probabilidad de los datos $D$ y entre las priors de los modelos.
+
+El término $P(D|M_{i} I)$ corresponde a la constante de normalización de la posterior de los parámetros $\boldsymbol{\theta_{i}}$. Es decir:
+
+\begin{equation}
+P(D|M_{i}, I) = \int_{\theta_{iN}} ... \int_{\theta_{i1}} P(D|\boldsymbol{\theta_{i}},M_{i} ,I) P(\boldsymbol{\theta_{i}}	|M_{i},I)\,  d\theta_{i1} ... d\theta_{iN}
+\label{eq:P(D|MI)}
+\end{equation}
+
+Si hacemos la aproximación gaussiana sobre la likelihood, $\mathcal{L}(\theta) \equiv P(D|\boldsymbol{\theta_{i}},M_{i} ,I)$ tenemos:
+\begin{equation}
+\log \mathcal{L}(\theta) \sim \log \mathcal{L}(\theta_{max}) + \frac{1}{2} \sum_{ij} \left(\boldsymbol{\theta}_{max} - \boldsymbol{\theta}\right)_{i} \left(\frac{\partial^2 \mathcal{L}}{\partial \theta_{i} \theta_{j}}\right)_{\boldsymbol{\theta}_{max}} (\boldsymbol{\theta}_{max} - \boldsymbol{\theta})_{j}
+\end{equation}
+Si reemplazamos ésto en la Eq. \ref{eq:P(D|MI)} obtenemos:
+\begin{equation}
+\begin{aligned}
+\displaystyle &P(D|M_{i}, I) = \\ &e^{\mathcal{L}(\theta_{max})}\int_{\theta_{iN}} ... \int_{\theta_{i1}} \exp \left\{  \frac{1}{2} \sum_{ij} \left(\boldsymbol{\theta}_{max} - \boldsymbol{\theta}\right)_{i} \left(\frac{\partial^2 \mathcal{L}}{\partial \theta_{i} \theta_{j}}\right)_{\boldsymbol{\theta}_{max}} (\boldsymbol{\theta}_{max} - \boldsymbol{\theta})_{j} \right\} P(\boldsymbol{\theta_{i}}	|M_{i},I)\,  d\theta_{i1} ... d\theta_{iN} 
+\end{aligned}
+\end{equation}
+Acá vamos a tomar una simplificación para poder interpretar más el resultado. Consideraremos a los $\theta_{i}$ independiente entre sí, tal que la matriz $\left(\frac{\partial^2 \mathcal{L}}{\partial \theta_{i} \theta_{j}}\right)^{-1}_{\boldsymbol{\theta}_{max}}$ es diagonal con elementos $\delta \theta_{i}$, que representan el ancho de cada parámetro en la likelihood. Tomaremos una segunda simplificación diciendo que las priors de los parámetros son independientes entre sí, planas y acotadas, tal que
+\begin{equation}
+P(\boldsymbol{\theta}|M_{i}) =  \prod_{\alpha} P(\theta_{\alpha}|M_{i}) = \prod_{\alpha} \frac{1}{\Delta \theta_{\alpha}}
+\end{equation}
+donde cada $\frac{1}{\Delta \theta_{\alpha}}$ es la prior plana del parámetro $\theta_{\alpha}$. Como estas distribuciones priors son constantes, el valor $\Delta \theta_{\alpha}$ representa el ancho de la distribución. Reemplazando este resultado y haciendo la integral obtenemos:
+\begin{equation}
+\displaystyle P(D|M_{i}, I) = e^{\mathcal{L}(\theta_{max})} \prod_{\alpha} \frac{\delta \theta^{i}_{\alpha}}{ \Delta \theta^{i}_{\alpha}}
+\end{equation}
+Ahora si retomamos la ecuación \ref{eq:modelos} utilizando estos resultados:
+\begin{equation}
+\frac{P(M_{i}|D,I)}{P(M_{j}|D,I)} = \frac{P(D|M_{i} I)}{P(D|M_{j} I)} \frac{P(M_{i}|I)}{P(M_{j}|I)} = e^{\mathcal{L}(\theta^{i}_{max}) - \mathcal{L}(\theta^{j}_{max})} \frac{\prod_{\alpha} \delta \theta^{i}_{\alpha}/\Delta \theta^{i}_{\alpha}}{\prod_{\beta} \delta \theta^{j}_{\beta} /\Delta \theta^{j}_{\beta}}\frac{P(M_{i}|I)}{P(M_{j}|I)}
+\end{equation}
+donde los índices $\alpha$ y $\beta$ corresponde al número de parámetros que tiene el modelo $i$ y $j$, respectivamente.
+
+A los factores que no tienen que ver con la prior de los modelos $P(M|I)$ se los conoce como \textit{Bayes factors} y se los suele notar como $B_{ij}$ notando como subíndices que estamos comparando el modelo $i$ con el $j$. Por lo tanto la comparación de modelos se resume en:
+\begin{equation}
+\frac{P(M_{i}|D,I)}{P(M_{j}|D,I)} = B_{ij} \frac{P(M_{i}|I)}{P(M_{j}|I)}
+\end{equation}
+
+donde diferenciamos la información sobre los datos y los parámetros de la prior de los modelos.Ahora podemos observar más de cerca $B_{ij}$,
+
+\begin{equation}
+B_{ij} = e^{\mathcal{L}(\theta^{i}_{max}) - \mathcal{L}(\theta^{j}_{max})} \times \frac{\Omega_{i}}{\Omega_{j}}
+\end{equation}
+donde notamos $\Omega_{k} \equiv \prod_{\gamma} \delta \theta^{k}_{\gamma}/\Delta \theta^{k}_{\gamma}$ para $k = i,j$ y $\gamma = \alpha, \beta$.
+
+El primer factor de la ecuación anterior compara simplemente el valor de las likelihoods en los máximos de cada modelo. Es decir, cuantifica cuánto más probable es haber medido los datos dado el modelo $i$ comparado con el $j$. 
+
+Por otro lado tenemos el cociente entre los $\Omega$ de cada modelo, el cual representa la relación entre la incerteza que tenemos sobre un parámetro antes y después de haber considerado los datos. Recordemos que $\delta \theta$ corresponde al ancho de la likelihood  y $\Delta\theta$ al ancho de la prior.  En primera instancia esto nos dice que si introducimos un parámetro cuya información no cambia por los datos es invisible ante el procedimiento. Luego, si consideramos parámetros que sí se vuelven más certeros una vez que incorporamos la información de los datos, el $\Omega$ tendrá peso en la comparación entre $M_{i}$ y $M_{j}$. Como observación general del factor $\Omega$, vemos que hay un factor de penalización en introducir un parámetro del cual sabemos poco, es decir $\Delta\theta$ grande o prior ancha, y sólo será conveniente en el caso de que la probabilidad de los datos $e^{\mathcal{L}(\theta_{max})}$ se incremente aún más que el peso de este factor $\delta \theta / \Delta \theta$. 
+
+Visto de manera simple el hecho de que la comparación de modelos favorezca a modelos con menos parámetros está de acuerdo con cierta filosofía que se ha trasmitido en la comunidad científica a lo largo de los años, la idea de la \textit{navaja de Occam} la cual favorece modelos que sean más simples en comparación a aquellos más complejos. Esta bella idea en general no exhibe una clara definición de qué es la simpleza, por lo que a pesar de querer ser tomada como principio metodológico peca de no poder ser consistente entre distintas personas dado que no está explícitamente definido. Sin embargo, bajo el procedimiento que mostramos a la hora de comparar modelos bajo la metodología bayesiana encontramos que el factor $\Omega_{i}/\Omega_{j}$ nos hace una comparación cuantitativa sobre la ``simplicidad'' de cada modelo y la pesa según que tan bueno es el ajuste en caso de complejizarlo. Es por esto que se reconoce a $\Omega_{i}/\Omega_{j}$ como el \textit{factor de Occam}.
+
+\textbf{P-values tradicionales y Bayesianos}
+
+Una vez que logramos constuir un modelo probabilistico y calcular la distribución posterior de lo los parámetros que nos interesan, es importante evaluar cómo ajusta nuestro modelo a los datos y al conocimiento que tenemos del problema. En general es dificil incorporar toda la información que disponemos al modelado y es importante investigar qué aspectos \textbf{no} están siendo capturados
+
+Como dijimos antes ``All models are wrong", incluso el modelo de tirar de monedas o dados tiene problemas y sus resultados no son independientes. Por lo que preguntarnos si nuestro modelo es la verdad resulta una \textit{mala} pregunta. Una pregunta más adecuada es ``¿Las definciencias de nuestro modelo tienen efectos notables en las inferencias que produce?" o en layman terms ``¿Las inferencias del modelo tienen sentido?"
+
+En primer lugar nos vamos a concentrar en hacer esta evalución con los datos que ya tenemos, esto nos adelanta a cómo se va a comportar el modelo para futuros datos.
+
+Si decimos que un modelo ajusta bien, significa que los dato generados con él deberían verse similar a los que observamos. En términos más técnicos los datos obervados deberían ser plausibles bajo la disitribución posterior predictiva. 
+
+\textit{
+La distribución posterior predictiva}
+
+La distribución posterior predictiva corresponde a la distribución de datos \textbf{no} observados ($\tilde{y}$), condicionados a los que \textbf{sí} observamos ($y$) y marginalizada sobre todos los parámetros del modelo, es decir:
+\begin{equation}
+p(\tilde{y}|y) = \int P(\tilde{y}|\theta) P(\theta|y) d\theta
+\end{equation}
+
+Para hacer la evaluación de nuestro modelo vamos generar datos con esta distribución y compararlos con los datos observados. Si todo anda bien no deberíamos ver discrepancias significativas.
+
+Pero cómo medimos las discrepancias? Una manera de hacerlo es definiendo \textit{test quantities} sobre los aspectos del modelo que nos interesa que estén bien representados. Un test quantity $T(y,\theta)$ es una función escalar de los parámetros y los datos que opera sobre los datos observados y sobre los generados por el modelo. En el formato de probabilidad \textit{clasica}, se suele usar el término \textit{test statistic} porque opera \textbf{sólo} sobre los datos y \textbf{no} sobre los parámetros.
+
+\textit{Tail area probabilities}
+
+El término \textit{tail area probability}, o bien \textit{p-value} se define clasicamente para un \textit{test statistic} $T(y)$ como:
+\begin{equation}
+p_{C} = P(T(\tilde{y})\geq T(y)|\theta)
+\end{equation}
+donde la probabilidad de los datos se toma con $\theta$ fijo. Aquí usamos que la probabilidad de los $\tilde{y}$ dado los datos $y$ y los parámetros $\theta$ es la misma que sólo condicionando en $\theta$.
+
+La idea de estos test estadísticos es representar en una ecalar una medida de diescrepancia entre las observaciones y que uno esperaría con el modelo suponiendo que los parámetros toman determinado valor.
+
+\textit{Bayesian p-value}
+En el caso bayesiano no consideramos que los parámetros toman un sólo valor, dado que la información que nos proveen los datos culmina en una distribución posterior de $\theta$s. Por lo que tiene sentido expandir la idea de \textit{test statistic} a \textit{text quantity} inncorporando la dependencia con $\theta$. El p-value bayesiano está defindo como la probabilidad de que los datos generados por el modelo sean ``más extremos" que los datos observados bajo los ojos del test:
+\begin{equation}
+P_{B} = P(T(\tilde{y},\theta)\geq T(y,\theta)|y)
+\end{equation}
+donde la probabilidad se evalua sobre la distribución posterior de $\theta$ y de los datos generados $\tilde{y}$.
+
+En la práctica en general calculamos distribución posterior predictiva usando simulaciones. Si tenemos $S$ simulaciones de la distribución posterior de $\theta$, podemos tomar \textbf{sólo un} valor $\tilde{y}$ de $P(\tilde{y}|y)$ y así
+obtener $S$ valores de $P(\tilde{y},\theta|y)$. El checkeo lo hacemos comparando el test de los datos generados $T(\tilde{y}^{s},\theta^{s})$ con el de los observados $T(y,\theta^{s})$. El valor de \textit{p-value} será la proporción de veces que uno fue matyor que el otro ($T(\tilde{y}^{s},\theta^{s}) \geq T(y,\theta^{s})$).
+\end{document}
+

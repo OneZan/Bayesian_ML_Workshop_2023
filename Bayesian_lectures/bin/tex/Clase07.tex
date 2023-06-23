@@ -1,0 +1,357 @@
+\documentclass[aps,onecolumn,12pt,notitlepage]{revtex4-1}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{anysize}
+\usepackage[spanish]{babel}
+\usepackage{pgf,tikz}
+\usetikzlibrary{arrows}
+\newcommand{\degre}{\ensuremath{^\circ}}
+\usetikzlibrary[patterns]
+\usepackage{enumerate}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{appendix}
+\usepackage{graphicx}
+
+\begin{document}
+
+\renewcommand{\andname}{y}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+
+\title{Modelos de clasificación lineales}
+\author{Martín Onetto} 
+%\date{\today}
+\maketitle
+\
+\section{Modelos de clasificación}
+El objetivo de los modelos de clasificación es construir una función \(G(X)\) que tome valores en un espacio discreto \(\mathcal{G}\). La función \(G\) construye fronteras en el espacio de partida que determinan a qué categoría corresponde cada punto del dominio. Estas fronteras pueden ser suaves o no. Para un gran conjunto de modelos, estas "decision boundaries" son lineales y se conocen como métodos lineales de clasificación.
+
+Nos vamos a concentrar además en modelos que emplean una "discriminant function" \(\delta_k(x)\) para cada clase \(k\). Luego, a cada \(x\) se le asignará la clase \(k\) donde tome el valor más grande. Un ejemplo de estos modelos son aquellos que utilizan como función discriminante las probabilidades posteriores \(P(G=k|X=x)\), y en caso de que sea una función lineal en \(x\), también sus fronteras de decisión serán lineales. 
+
+Estrictamente hablando, para que las fronteras de decisión sean lineales, basta con que haya una transformación monótona de \(\delta_k\) que resulte lineal, para que las fronteras sean lineales.
+
+\subsection*{Ejemplo}
+
+Imaginemos que solo tenemos dos clases posibles. Un modelo común para las probabilidades posteriores es:
+
+\[
+P(G=1|X=x) = \frac{\exp(\beta_0 + \beta^T x)}{1+\exp(\beta_0 + \beta^T x)}
+\]
+\[
+P(G=0|X=x) = \frac{1}{1+\exp(\beta_0 + \beta^T x)}
+\]
+
+(¿Te suena de algo, tal vez Fermi?)
+
+Una transformación que lleva estas probabilidades a una función lineal del dominio es el "logit" (\(\log[p/(1-p)]\)):
+
+Si \(p = P(G=1|X=x)\), como solo hay dos clases, entonces \(1-p = P(G=2|X=x)\). Al aplicar el "logit", obtenemos un "bayes factor" de ambas opciones:
+
+\[
+\log \frac{P(G=1|X=x)}{P(G=2|X=x)} = \beta_0 + \beta^T x
+\]
+
+la cual es lineal. En la zona donde los "log odds" son cero, es donde coinciden las probabilidades y donde hay una frontera definida por un hiperplano lineal.
+
+\section*{Clasificador de Regresión Lineal}
+
+Comenzamos definiendo las categorías target como variables indicadoras, por lo que si el espacio de llegada \(\mathcal{G}\) tiene \(K\) clases, habrá \(K\) variables respuesta \(Y_k\), \(k = 1, \ldots, K\), que tendrán \(Y_k = 1\) si \(G_k = 1\) y en otro caso serán \(0\). Si estructuramos las \(Y_k\) en un vector, tenemos \(Y = (Y_1, \ldots, Y_k)\), y dadas \(N\) observaciones de entrenamiento, obtenemos una matriz \(\mathbf{Y}\) de \(N \times K\) donde en cada fila hay un solo \(1\) y el resto son \(0\)'s.
+
+Si procedemos con un ajuste lineal como hicimos en el caso de la regresión, sabemos que la solución para \(\beta\) es \(\hat{\beta} = (X^TX)^{-1}X^T Y\).
+
+Aquí, \(X\) representa los datos de dimensión \(p\), donde además agregamos un \(1\) para tomar como parámetro la ordenada al origen. Por lo tanto, cuando tenemos una nueva observación \(x\), la clasificamos como:
+
+\begin{equation}
+\mathbf{f}(x)^T = (1, x^T) \hat{\mathbf{B}} \quad
+\end{equation}
+Esto resulta en un vector de tamaño \(K\).
+
+Identificamos la componente \(k\) con mayor valor y clasificamos acorde:
+\begin{equation}
+G(x) = \arg\max_{k \in \mathcal{G}} f_k(x)
+\end{equation}
+
+\subsection*{¿Por qué funciona esto?}
+
+De la misma manera que en la regresión lineal, uno podría enfocarse en encontrar el \(B\) tal que se minimice la diferencia entre lo que predice el modelo y el resultado \(y_k\) clasificado, es decir:
+
+\[
+\min_{\mathbf{B}} \sum_{i=1}^{N} \left\| y_i - \left[(1, x_i^T)\mathbf{B}\right]^T \right\|^2
+\]
+
+Luego, definiendo las categorías target como vectores columna \(t_k\) que valen \(1\) cuando nos referimos a la categoría \(k\) y \(0\) en los otros casos, el proceso de clasificación consiste en:
+
+\[
+\hat{G}(x) = \arg\min_{k} \left\| f(x) - t_k \right\|
+\]
+
+lo cual es matemáticamente equivalente a lo anterior.
+
+Este enfoque sencillo tiene problemas cuando hay 3 o más clases en \(\mathcal{G}\) dado que hay clases que no son bien representadas y resultan orientadas hacia las otras dos.
+
+\section*{Método de Discriminación Lineal (LDA)}
+
+Como vimos anteriormente, una forma de función discriminante es la probabilidad posterior \(P(G=k|X=x)\). Esta probabilidad posterior se calcula como:
+
+\[
+P(G=k|X=x) = \frac{P(X=x|G=k)P(G=k)}{\sum_{l=1}^{K} P(X=x|G=l)P(G=l)}
+\]
+
+En notación más compacta, las verosimilitudes se escriben como \(f_k(x) \equiv P(X=x|G=k)\), y las prioris de las clases como \(\pi_k\):
+
+\[
+P(G=k|X=x) = \frac{f_k(x)\pi_k}{\sum_{l=1}^{K} f_l(x)\pi_l}
+\]
+
+Para obtener un modelo de clasificación, uno debe proponer las funciones \(f_k\) y las prioris \(\pi_k\).
+
+Una primera opción para la verosimilitud es una distribución gaussiana multivariada sobre los \(x\), con centros ubicados en las clases \(k\):
+
+\[
+f_k(x) = \frac{1}{(2\pi)^{p/2} |\Sigma_k|^{\frac{1}{2}}}e^{-\frac{1}{2}(x-\mu_k^T)\Sigma_k^{-1}(x-\mu_k)}
+\]
+
+Sin embargo, como modelo paramétrico de las \(K\) clases, resulta muy engorroso tener \(K \times \frac{p(p+1)}{2}\) parámetros. Por lo tanto, un enfoque más simple es considerar que, aunque las medias de cada clase son diferentes, todas comparten la misma matriz de covarianza \(\Sigma_k = \Sigma\) para todo \(k\).
+
+Retomando el proceso de construcción de fronteras que mencionamos antes, si tomamos el "log-ratio" para dos clases dado un dato, tenemos:
+
+\[
+\log \frac{P(G=k|X=x)}{P(G=l|X=x)} = \log \frac{\pi_k}{\pi_l} - \frac{1}{2}(\mu_k+\mu_l)^T\Sigma^{-1}(\mu_k- \mu_l) + x^T\Sigma^{-1}(\mu_k-\mu_l)
+\]
+
+(Ejercicio: deducir la expresión anterior)
+
+Como la dependencia del Bayes factor con \(x\) es lineal, las fronteras entre los resultados positivos y negativos de la comparación de modelos están regidas por un hiperplano que divide ambas clasificaciones.
+
+Ahora bien, recordemos que la comparación de modelos, o más generalmente, hipótesis, a partir de los factores de Bayes se basa en una comparación dual. Es decir, solo podemos hacer comparaciones entre dos alternativas. A la hora de introducir una tercera, debemos hacer todas las comparaciones y ver cuál predomina. Esto hace que el problema sea equivalente a proponer una función de discriminación lineal \(\delta_k(x)\) de la forma:
+
+\[
+\delta_k(x) = \log \pi_k -\frac{1}{2} \mu_k \Sigma^{-1}\mu_k + x^T\Sigma^{-1}\mu_k
+\]
+Y la función de clasificación $\mathcal{G}$ resulta en $G(x) = \text{argmax}_{k} \delta_{k}(x)$.
+
+\subsection*{¿Cómo procedemos en la práctica?}
+
+Una vez que definimos que las funciones de verosimilitudes son gaussianas multivariadas que comparten la matriz de covarianza, debemos estimar los parámetros de dichas distribuciones para poder hacer clasificaciones con datos futuros. Una primera alternativa es usar los estimadores de máxima verosimilitud:
+
+\begin{itemize}
+  \item $\hat{\pi}_{k} = \frac{N_{k}}{N}$
+  \item $\hat{\mu}_{k} = \frac{\sum_{i=1}^{N} x_{i}}{N}$
+  \item $\Sigma = \frac{\sum_{k=1}^{K} \sum_{g_{i}=k} (x_{i}-\hat{\mu}_{k})(x_{i}-\hat{\mu}_{k})^{T}}{N-K}$
+\end{itemize}
+
+Habiendo obtenido estos parámetros, podemos calcular $G$ para cada dato nuevo de entrada.
+
+\textbf{Obs}
+
+En el caso de que haya sólo dos clases y que el número de datos de cada clase coincida, la frontera resultante del factor de Bayes para la regresión lineal y para el LDA coinciden. Sin embargo, para una mayor cantidad de clases y diferente número de puntos, los resultados no coinciden y el LDA soluciona los problemas de enmascaramiento que genera la regresión lineal.
+
+\section*{Discusión}
+
+\begin{itemize}
+  \item ¿Cómo se podría \textit{bayesianizar} este método?
+  \item ¿Qué cambiaría?
+  \item ¿Cómo afectaría el número de datos de cada clase a las fronteras de las etiquetas?
+\end{itemize}
+
+\subsection{QDA}
+
+El siguiente paso para complejizar el modelo consiste en relajar la hipótesis donde todas las matrices de covarianza coinciden. Esto hace que a la hora de calcular la función de discriminación no se cancelen los factores cuadráticos y, por lo tanto, el resultado no sea lineal en \(x\). En este caso, el resultado es:
+
+\begin{equation}
+\delta(x)_{k} = -\frac{1}{2}\log |\Sigma_{k}| -\frac{1}{2} (x-\mu_{k})^{T}\Sigma_{k}^{-1}(x-\mu_{k}) + \log \pi_{k}
+\end{equation}
+
+Las fronteras, por lo tanto, están dadas por las cuádricas definidas por \(\{ x : \delta_{k}(x) = \delta_{l}(x) \}\).
+
+\subsection{Estimación de parámetros}
+
+Para hacer la estimación de parámetros, procedemos de la misma manera que LDA, solo que tenemos tantas matrices de covarianzas como etiquetas \(k\):
+
+\begin{align}
+\hat{\pi}_{k} &= \frac{N_{k}}{N} \\
+\hat{\mu}_{k} &= \frac{1}{N} \sum_{i=1}^{N} x_{i} \\
+\Sigma_{k} &= \frac{1}{N-K} \sum_{g_{i}=k} (x_{i}-\hat{\mu}_{k})(x_{i}-\hat{\mu}_{k})^{T}
+\end{align}
+
+\textbf{Reflexiones de Hastie}
+
+``The question arises why LDA and QDA have such a good track record. The reason is not likely to be that the data are approximately Gaussian, and in addition for LDA that the covariances are approximately equal. More likely a reason is that the data can only support simple decision boundaries such as linear or quadratic, and the estimates provided via the Gaussian models are stable. This is a bias-variance tradeoff—we can put up with the bias of a linear decision boundary because it can be estimated with much lower variance than more exotic alternatives. This argument is less believable for QDA, since it can have many parameters itself, although perhaps fewer than the non-parametric alternatives."
+
+\subsection{Implementación}
+
+
+Encontramos una base de autovectores de \(\Sigma\) (o \(\Sigma_{k}\)) ortonormales tal que \(\Sigma = UDU^{T}\), donde \(D\) es diagonal.
+
+
+Luego, podemos calcular el determinante de \(\Sigma\) utilizando los autovalores:
+
+\begin{equation}
+\log |\Sigma| = \sum_{l} \log d_{ll}
+\end{equation}
+
+
+Para clasificar, podemos hacer la siguiente transformación a los datos:
+
+\begin{equation}
+X \rightarrow X^{*}\\
+X^{*} = D^{-\frac{1}{2}}U^{T}X
+\end{equation}
+
+Ahora no habrá covarianza entre los datos y, a su vez, su varianza será \(1\).
+
+\subsection{Implementación}
+
+\begin{itemize}
+    \item Encontrar una base de autovectores de $\Sigma$ (o $\Sigma_{k}$) ortonormales tal que $\Sigma = UDU^{T}$ donde $D$ es diagonal.
+    \item Luego, $\log |\Sigma|  = \sum_{l} \log d_{ll}$
+\end{itemize}
+
+Para clasificar, podemos hacer la siguiente transformación a los datos: 
+\begin{equation}
+X \rightarrow X^{*}\\
+X^{*} = D^{-\frac{1}{2}}U^{T}X. 
+\end{equation}
+Ahora no habrá covarianza entre los datos y, a su vez, su varianza será $1$.
+
+Finalmente, clasificamos los datos $X^{*}$ con el centroide más cercano ponderado con la prior. En el lenguaje de las funciones discriminantes, resulta:
+\begin{equation}
+\delta(x^{*})_{k} = -\frac{1}{2}||x^{*}-\mu_{k}||^{2} + \log \pi_{k}
+\end{equation}
+
+\subsection{Reduced Rank LDA}
+
+En caso de tener $K$ centroides en un espacio $p$-dimensional de los datos de entrada, existe un subespacio afin $H$ del $\mathbb{R}^{p}$ que los contiene. En caso de que $p$ sea mucho más grande que $K$, esto resulta en una reducción de dimensión considerable, dado que la dimensión de $H$ será menor a $K-1$. Cuando clasificamos encontrando al centroide más cercano, podemos ignorar las distancias que son ortogonales al subespacio $H$, dado que contribuyen de igual manera a la clasificación. Por lo tanto, podemos sin problemas proyectar los datos $X^{*}$ en este subespacio y hacer las comparaciones de distancias allí. De esta manera, existe una gran reducción de dimensionalidad en el LDA, ya que solo tenemos que considerar proyecciones de los datos en un subespacio de dimensión a lo sumo $K-1$.
+
+En caso de querer seguir reduciendo la dimensión, una vez estando en la variedad afin $H$, es posible realizar un análisis de componentes principales. Este procedimiento coincide con lo que se conoce como el criterio de optimización de Fisher. La idea principal es buscar las direcciones en las que más se separan los centroides y analizar los datos proyectados sobre esas direcciones.
+
+Formalmente, queremos encontrar una combinación lineal $Z = a^{T}X$ tal que la varianza entre clases sea máxima en comparación con la varianza que hay individualmente en cada clase.
+
+En el caso de las varianzas de cada clase, cada una está representada por la matriz $\Sigma_{K}$, que en el LDA corresponden a una misma matriz $\Sigma$ y la notaremos $W$ por \textit{within class}.
+
+Para analizar lo que sucede entre clases, \textit{between classes}, calculamos un vector $\mu$ y una matriz de covarianza $B$ (\textit{between classes}):
+\begin{align}
+\mu &= \sum_{k=1}^{K} \pi_{k} \mu_{k}\\
+B &= \sum_{k=1} \pi_{k} (\mu_k-\mu)(\mu_k-\mu)^{T}
+\end{align}
+
+Lo que buscó optimizar Fisher es:
+\begin{equation}
+\max_{a} \frac{a^{T} B a}{a^{T} W a}
+\end{equation}
+
+Para resolver esto, comenzamos descomponiendo en autovectores a $W = V_{W} D_{W} V_{W}^{T}$. Definiendo vectores $b = W^{-\frac{1}{2}} a$, con $W^{\frac{1}{2}} = D_{W}^{\frac{1}{2}} V_{W}^{T}$.
+
+La optimización resulta:
+\begin{equation}
+\max_{b} \frac{b^{T}(W^{-\frac{1}{2}})^{T}\,B\,W^{-\frac{1}{2}}b}{b^{T}b}
+\end{equation}
+
+Si definimos $B^{*} = (W^{-\frac{1}{2}})^{T}\,B\,W^{-\frac{1}{2}}$ y lo descomponemos de forma diagonal $B^{*} = V_{B^{*}} D_{B^{*}} V^{T}_{B^{*}}$, resulta que la dirección $b$ que maximiza la distancia será aquella asociada al autovector con autovalor más grande (la matriz es simétrica y real, por lo tanto, sus autovalores son positivos). Es decir, si llamamos a las columnas de $V_{B^{*}} = \{ v_{1},\dots,v_{K}\}$ ordenadas según los autovalores de mayor tamaño, estos definen las direcciones de máxima separación de los centroides de las clases.
+
+\section{Logistic Regression}
+
+Estos modelos nacen del deseo de describir las probabilidades posterior de las $K$ clases de forma lineal en $x$, manteniendo la restricción de que sumen $1$ y que estén acotadas en el intervalo $[0,1]$. La forma de especificar el modelo es:
+
+\begin{equation}
+\log \frac{P(G=1|X=x)}{P(G=K|X=x)}  = \beta_{10} + \beta_{1}^{T}x
+\end{equation}
+
+\begin{equation}
+\log \frac{P(G=2|X=x)}{P(G=K|X=x)}  = \beta_{20} + \beta_{2}^{T}x
+\end{equation}
+
+\begin{equation}
+\log \frac{P(G=K-1|X=x)}{P(G=K|X=x)} = \beta_{(K-1)0} + \beta_{K-1}^{T}x
+\end{equation}
+
+La elección de la comparación con la última categoría es arbitraria en el sentido de que los resultados de las estimaciones no se ven afectados.
+
+Las posteriors bajo esta construcción resultan (Ejercicio):
+
+\begin{equation}
+P(G=k|X=x) = \frac{\exp (\beta_{k0} + \beta_{k}^{T}x)}{1 + \sum_{\mathcal{l}= 1}^{K-1}(\beta_{\mathcal{l}0}+ \beta_{l}^{T}x)}
+\end{equation}
+
+\begin{equation}
+P(G=K|X=x) = \frac{1}{1 + \sum_{\mathcal{l}= 1}^{K-1}(\beta_{\mathcal{l}0}+ \beta_{l}^{T}x)}
+\end{equation}
+
+Es fácil ver que las probabilidades suman $1$ y que están acotadas entre $0$ y $1$. Como es de costumbre, llamaremos al conjunto de todos los parámetros $\theta = \{\beta_{10},\beta_{1}^{T},\dots,\beta_{(K-1)0},\beta_{K-1}^{T}\}$ y escribiremos $P(G=k|X=x) = P_{k}(x|\theta)$.
+
+Para determinar los valores de $\theta$, el camino más usual es hacer maximum likelihood sobre la distribución condicional de $G$ dado $X$.
+
+\subsection{Ejemplo}
+
+Imaginemos que tenemos $N$ observaciones de una variable respuesta $y_{i}$ que toma valores $0$ o $1$, es decir $K = 2$. En este caso, hay dos probabilidades $P_{1}(x|\theta)$ y $P_{0}(x|\theta) = 1 - P_{1}(x|\theta)$. La likelihood de esas respuestas es:
+
+\begin{equation}
+\mathcal{L}(\theta) \propto \prod_{i=1}^{N} \left[ P_{1}(x_{i}|\theta)^{y_{i}} + (1-P_{1}(x_{i}|\theta))^{(1-y_{i})}\right]
+\end{equation}
+
+Para calcular el máximo tomamos logaritmo, y obtenemos:
+
+\begin{align*}
+\mathcal{L}(\beta) &= \sum_{i=1}^{N} \left{ y_{i} \log P_{1}(x_{i}|\theta) +(1-y_{i}) \log (1-P_{1}(x_{i}|\theta)) \right} \\
+\mathcal{L}(\beta) &= \sum_{i=1}^{N} \left{y_{i} (\beta_{10} + \beta_{1}^{T}x_{i}) - \log (1 + e^{\beta_{10} + \beta_{1}^{T}x_{i}}) \right}
+\end{align*}
+
+Tomando la notación de $x_{i} = (1,x_{i})$ y $\beta = (\beta_{10},\beta_{1})$. Derivando e igualando a cero encontramos lo que se llaman las funciones de \textit{score}:
+
+\begin{align*}
+\nabla_{\beta} \mathcal{L} &= 0 \\
+\sum_{i=1}^{N} x_{i}(y_{i} - P(x_{i}|\beta)) &= 0
+\end{align*}
+
+Estas son $p+1$ ecuaciones, $p$ de la dimensión de $x$ más una del valor de la constante. La primera función de \textit{score} resultará en $\sum_{i=1}^{N} y_{i} = \sum_{i=1}^{N} P(x_{i}|\beta)$, lo cual manifiesta que el número observado de casos 1 coincide con el número esperado de la variable aleatoria $y$. El resto de las ecuaciones son no lineales en $\beta$ y suelen ser resueltas numéricamente con el método de Newton-Raphson. (Ver Hastie, pp. 120-122)
+
+\section*{Diferencias entre LDA y Logistic Regression}
+
+Si hacemos una comparación en cómo se generan las fronteras de decisión en cada modelo tenemos:
+
+\begin{equation}
+\log \frac{P(G=k|X=x)}{P(G=K|X=x)} = \log \frac{\pi_{k}}{\pi_{K}} - \frac{1}{2}(\mu_{k}+\mu_{K})^{T}\Sigma^{-1}(\mu_{k}- \mu_{K}) + x^{T}\Sigma^{-1}(\mu_{k}-\mu_{K})
+\end{equation}
+
+\begin{equation}
+\log \frac{P(G=k|X=x)}{P(G=K|X=x)} = \alpha_{0} + \alpha_{k}^{T}x
+\end{equation}
+
+La linealidad en el logit es consecuencia de la suposición gaussiana y que la covarianza sea la misma para todas las clases. Luego, por construcción, la regresión logística es lineal también:
+
+\begin{equation}
+\log \frac{P(G=k|X=x)}{P(G=K|X=x)}  = \beta_{k0} + \beta_{k}^{T}x
+\end{equation}
+
+Desde este punto de vista, ambos modelos parecen ser idénticos. Sin embargo, la manera en que se estiman los parámetros es muy diferente. En uno utilizamos el máximo likelihood de las gaussianas e introducimos esos estimadores como los parámetros $\mu_{k},\Sigma$ y las priors $\pi_{k}$. En el otro caso, sólo maximizamos la likelihood condicional de las variables respuesta $G$ (o $y$). Analíticamente, lo que sucede es que al mirar la distribución conjunta de $X$ y $G=k$ tenemos:
+
+\begin{equation}
+P(X,G=k) = P(X)P(G=k|X)
+\end{equation}
+
+En la regresión logística, el término $P(X)$ no es tenido en cuenta en el ajuste de los datos. Esto puede ser considerado una bondad del método o un defecto, ¿por qué? En cambio, para el LDA:
+
+\begin{equation}
+P(X,G=k) = P(X|G = k)P(G=k) = \phi(X|\mu_{k},\Sigma) \pi_{k}
+\end{equation}
+
+Y por lo tanto:
+
+\begin{equation}
+P(X) = \sum_{k=1}^{K} \pi_{k} \phi(x|\mu_{k},\Sigma)
+\end{equation}
+
+Esto resulta en una mezcla de gaussianas que tiene incorporados en su construcción a los parámetros.
+
+El resultado de tomar como suposición que los datos provienen de esta distribución genera que los parámetros se puedan estimar de una manera más eficiente, es decir, que tengan menos varianza. Según Efron 1975, si los datos provienen efectivamente de esta distribución, ignorar la prior marginal $P(X)$ resulta en una necesidad de un $30\%$ más de datos para que la likelihood resulte en los mismos resultados.
+
+Desde otro punto de vista, puede considerarse que tener definida la prior marginal para los datos como función de los parámetros funciona como un regularizador, obligando a que las clases pueden ser destinguidas. Por ejemplo si los datos en un problema de dos clases puede ser separados perfefctamente por un hyperplano, el máximo likelihood para la regresión logistica resultan mal definidos, en cambio para el LDA no hay dificultades.
+
+Por otro lado, al ser más informativo el LDA es menos robusto frente \textit{outliers} por lo que cuando la suposiciones no son adecuadas el método puede fallar. En este caso podemos decir que la regresión logistica es más robusta porque tiene menos suposiciones.
+
+
+\end{document}
+

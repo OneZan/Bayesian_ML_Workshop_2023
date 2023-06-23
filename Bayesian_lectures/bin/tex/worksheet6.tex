@@ -10,7 +10,7 @@
 
 
 \title{\begin{center}Bayesian Statistics and Machine Learning Workshop 2023\end{center}}
-\subtitle{\begin{center}\Large Parametric Priors and Hyperparameters\\ Martín Onetto \end{center}}
+\subtitle{\begin{center}\Large Introuction to Classification Methods\\ Martín Onetto \end{center}}
 
 \begin{document}
 \maketitle
@@ -26,117 +26,52 @@
 \section{Questions}
 
 \begin{enumerate}
-
-\item Describir la relación estadística entre los datos, parámetros e hiperparámetros.
-\item Describir el rol de los hiperparámetros en el modelo estadístico.
+\item Cómo es el proceso de clasificación?
+\item Decribir el proceso que se definen las fronteras de decisión para la regresión lineal, logistica, LDA y QDA
+\item ¿Cómo se podría \textit{bayesianizar} los métodos vistos?
+\item ¿Qué cambiaría en los resultados obtenidos?
+\item ¿Cómo afectaría el número de datos de cada clase a las fronteras de las etiquetas?
 \end{enumerate}
 
 \subsection{Problems}
 
-\begin{enumerate}
-\item \textbf{Prostate cancer}
+\textbf{Gaussians}
 
+Simular datos de 3 Gaussianas multivariabdas con $\Sigma = diag(1,1)$ y $\mu_{1} = (0,0)$,$\mu_{2} =(1,1)$ y $\mu_{3} = (-1,-1)$. Cada guassiana ahora representa una clase $Y = k$ con $k \in \{1,2,3\}$
 \begin{enumerate}
-\item Cargar la base de datos que describe las variables relacionadas al cancer de prostata. La variable respuesta es \textit{lpsa}. 
-\item Describir las columnas como numéricas y categóricas.
-\item Ajustar un modelo lineal (con \textit{intercept}) $y =\beta^{T}X$. Para eso determinar el máximun likelihood $\beta_{MLE}$ y su varianza $\Sigma_{\beta}$. Tomar como $\sigma$ del ajuste gaussiano al desvío estandard de los datos respuesta.
-\item Calcular el \textit{Z-score} de cada $\beta$ definido como:
-$$
-z_{j} = \frac{\beta_{j}}{\sqrt{ \Sigma_{jj}}}
-$$
-\item Repetir el ajuste y el cálculo del \textit{Z-score} removiendo de a uno a la vez el parámetro con menor valor asboluto de $z$. Y ver:
-\begin{enumerate}
-\item Cómo evolucionan los valores de los parámetros
-\item Cómo cambia su incerteza
-\item Cómo cambia el mean squared error del ajuste.
-\end{enumerate}
-
-\item Proponer modelos \textit{Ridge} y \textit{Lasso} para ver la misma evolución del punto \textit{e)} a medida que aumentamos el hyper parámetro. Interpretar
+\item Armar las fronteras de decisión con cada uno de los métodos vistos.
+\item Para cada método evalular el Error rate de la clasiicación. 
+\item Encontrar la dirección de máxima varianza según el método de Fisher y hacer un plot de las gaussianas sobre esa dirección.
 \end{enumerate}
 \newpage
-\item \textbf{Hierarchical models}
 
-\textbf{Rat tumor problem}
-\begin{enumerate}
-\item Expreimentos previos sobre efectividad de tratamiento contra cancer en ratones de experimentos generaron los siguientes datos:
+\textbf{Vowel recognition}
+
+Cargar la base de datos vowel.csv que contiene una variable target $y = k \in \{1,\dots,11\}$. Cada $y_{k}$ corresponde a una vocal estas son: 
 \begin{verbatim}
-data = [0/20,0/20,0/19,0/18,1/18,1/18,2/20,1/10,3/20,2/13,
-        4/20,10/48,6/23,5/19,0/20,0/18,2/25,5/49,9/48,4/19,
-        6/22,0/20,0/17,2/24,2/19,10/50,4/19,6/20,0/20,1/20,
-        2/23,5/46,4/20,4/19,6/20,0/20,1/20,2/20,3/27,4/20,5/22,
-        6/20,0/20,1/20,2/20,2/17,4/20,11/46,16/52,0/19,1/20,2/20,
-        7/49,4/20,12/49,15/47,0/19,1/19,2/20,7/47,4/20,5/20,15/46,
-        0/19,1/19,2/20,3/20,4/20,5/20,9/24]
+| vowel |  word  | vowel |  word   | 
++-------+--------+-------+---------+
+|  i    |  heed  |  O    |  hod    |
+|  I    |  hid   |  C:   |  hoard  |
+|  E    |  head  |  U    |  hood   |
+|  A    |  had   |  u:   |  who'd  |
+|  a:   |  hard  |  3:   |  heard  |
+|  Y    |  hud   |       |         |
++-------+--------+-------+---------+
 \end{verbatim}
-donde el numerador es número de ratones con tumores después del tratamiento y el denominador es el número total de ratones en el ensayo. 
-\item Usar un modelo binomial donde cada resultado se toma como independiente para estimar la taza de efectividad del tratamiento $\theta$. Calcular la likelihood de que un nuevo experimento resulte en $y_{new} = 4/14$ dado los experimentos anteriores. Interpretar
-\item Proponer un modelo jerárquico de la forma:
-\begin{align}
-P(\alpha,\beta) &\propto (\alpha + \beta)^{-5/2}\\
-P(\theta_{i}|\alpha,\beta) &\sim Beta(\alpha,\beta)\\
-P(n_{i}|N_{i},\theta_{i}) &\sim Binom(\theta_{i},N_{i})
-\end{align}
-\item La posterior marginal de los hierparámetros tiene la forma:
-\begin{equation}
-P(\alpha,\beta|\{n_{i},N_{i}\}) \propto P(\alpha,\beta) \prod_{i=1}^{N}\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\frac{\Gamma(\alpha+n_{j})\Gamma(\beta + N_{j}-n_{j})}{\Gamma(\alpha + \beta + n_{j})}
-\end{equation}
-Encontrar los $\alpha$ y $\beta$ que hacen máxima a la posterior. Comparar el valor de $\frac{\hat{\alpha}}{\hat{\alpha}+\hat{\beta}}$ con el máximo de la posteior de $\theta$ en el inciso \textit{b)}
-
-\item Simular $\theta$ de la distribución $P(\theta|D,\alpha,\beta) \approx P(\theta|D,\hat{\alpha},\hat{\beta})$ y hacer un histograma con ellos. (Al método de quedarnos con la máxima posterior de los hiperárametros y no con toda su distribución se lo conoce como EM algorithm.)
-
-\item Para cada parámetro simulado $\theta^{s}$ simular un $n^{s}$ para $N = 14$ (correspondiente al nuevo experimento). Hacer un histograma de los $n^{s}$ resultantes y evaluar en que percentil cae el nuevo experimento. Comparar con el resultado anterior.
-
-\end{enumerate}
-\newpage
-\textbf{Eight schools problem }
-
-Nos interesa evalaluar como cambia el resultado de los alumnos en los SAT después de un pograma de coaching. El programa se implementó en 8 escuelas y sus resultados se resumen en la siguiente tabla:
-
-\begin{table}[!ht]
-\centering
-\begin{tabular}{ccc}
-School & Estimated effect $y_{j}$ & Standard Error of effect estimate $\sigma_{j}$ \\\hline
-A      & 28                       & 15                                             \\
-B      & 8                        & 10                                             \\
-C      & -3                       & 16                                             \\
-D      & 7                        & 11                                             \\
-E      & -1                       & 9                                              \\
-F      & 1                        & 11                                             \\
-G      & 18                       & 10                                             \\
-H      & 12                       & 18                                            
-\end{tabular}
-\end{table}
+Para determinar estas vocales tenemos datos $X$ con dimensión $p = 10$ que corresponden a procesamientos auditivos de diferentes frecuencias de mediciones de voz. Para este conjunto de datos:
 \begin{enumerate}
-\item Calcular los intervalos de $95\%$, $(y_{j}\pm 2\sigma_{j})$ de cada escuela independientemente y ver que todos se solapan sustancialmente. Concluir que pensar que cada escuela está aislada de la otra en los efectos del coaching no es una buena hipótesis. Por qué?
-\item Considerar que los resultados observados son datos independientes de un  mismo fenómeno e independientes que vienen de una distribución normal con parámetros $(\mu,\tau)$. Calcula la posterior de $\mu$ y dar su intervalo de credivilidad de 95\%. Usando el máximo de la posterior de $\mu$ calcular la likelihood de que un efect haya sido $28$. Es verosimil ?
-
-\item Proponer un modelo jerárquico de la forma:
-\begin{align*}
-P(\mu,\tau^{2}) &\propto 1\\
-P(\theta_{j}|\mu,\tau^{2}) &\sim N(\mu,\tau^{2})\\
-P(y_{j}|\theta_{j},\sigma_{j}) &\sim N(\theta_{j},\sigma_{j})
-\end{align*}
-donde vamos a tomar a los $\sigma_{j}$ como los valores std effects estimados de los datos y no haremos inferencias sobre ellos.
-
-En este modelo la posterior marginal de $\mu|\tau,y$ es:
+\item Armar las fronteras de decisión con regresión logistica, LDA y QDA.
+\item Para cada método evalular el Error rate de la clasiicación. 
+\item Encontrar las dos direcciones de máxima varianza según el método de Fisher y hacer un scatter plot de los datos con sus respectivas clases en esas direcciones.
+\item Para el caso de la regresión logistica, calcular la posterior de los parámetros y su varianza. Con al información de la posterior queremos ver cómo se ve afectada la linea de decisión respeto a usar el máximun likelihoo. Para esto elegir dos clases $g_{i}$ y $g_{j}$ y calcular su frontera marginalizando sobre la posterior de $\beta$ es decir:
 \begin{equation}
-P(\mu|\tau,y) \sim N(\hat{\mu},V_{\mu})
+\log \frac{P(G=i|X)}{P(G=j|X)} = \frac{\int P(G=i|X,\beta) P(\beta|X)d\beta}{\int P(G=j|X,\beta) P(\beta|X)d\beta}
 \end{equation}
-donde:
-\begin{align}
-\hat{\mu} &= \frac{\sum_{i =1}^{8}\frac{1}{\sigma_{j}^{2}+ \tau^{2}}\bar{y_{j}}}{\frac{1}{\sigma_{j}^{2}+ \tau^{2}}} \\
-V_{\mu}^{-1} &= \sum_{i=1}^{8}\frac{1}{\sigma_{j}^{2} + \tau^{2}}
-\end{align}
-La posterior de $\tau$ resulta una función intrincada de la forma:
-\begin{equation}
-P(\tau^{2}|y) \propto V_{\mu}^{-1/2} \prod_{i=1}^{8} (\sigma_{j}^{2}+ \tau^{2})^{-1/2} \exp \left(-\frac{(\bar{y_{j}} - \hat{\mu})^{2}}{2(\sigma^{2}_{j}+\tau^{2})}\right)
-\end{equation}
-\end{enumerate}
-
-\item Simular nuevos efectos para cada escuela $j$ y graficar cómo se distribuyen. Para esto tomar 1000 simulaciones de la posterior de $\tau^{2}|y$ luego samplear de la posterior $P(\mu|\tau,y)$, esto nos da 1000 muestras de la distribución cojunta $P(\mu,\tau^{2}|y)$. Para cada una de las muestras simuladas simular un $\theta_{j}$ de cada escuela y con él simular un dato $y_{j}$, eso resulta en $(1000,8)$ simulaciones de datos. 
-\item Hacer un histograma con las simulaciones obtenidas para cada escuela, y calcular numericamente el intervalo de confianza del 95\% para cada una. Comparar con los intervalos calculados en los incisos anteriores.
-\item Ver el como es el comportamiento de $E[\theta_{j}|\hat{mu},\tau^{2}$ como función de $\tau \in [0,30]$.
-\item Ver el como es el comportamiento de $Var[\theta_{j}|\hat{mu},\tau^{2}$ como función de $\tau \in [0,30]$.
+tomar como posterior de $\beta$ su aproxmiación gaussiana por el método de Laplace.
+\item Trazar las curvas fronteras entre las dos clases elegidas que resultan de samplear 1000 $\beta^{s}$ de la posterior inferida. 
+\item Discutir la diferencia entre considerar la incerteza en los parámetros y no hacerlo.
+\item Repetir el procedimiento anterior para QDA pero sólo hacer inferencia bayesiana sobre los $\mu$s, es decir seguir estimando cada matriz de covarianza como\newline $ \Sigma_{k} = \frac{1}{N_{k}-p-1} \sum_{i=1}^{N_{k}} (y^{k}_{i}-\bar{y}^{k}) (y^{k}_{i}-\bar{y}^{k})^{T}$. 
 \end{enumerate}
 
 \pagestyle{empty}
